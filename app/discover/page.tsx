@@ -14,7 +14,7 @@ export default function Discover(){
  if(error){setMsg(error.message);setLoading(false);return}
  const {data:likes}=await c.from('likes').select('liked_id').eq('liker_id',user.id)
  const liked=new Set((likes||[]).map(x=>x.liked_id))
- const candidates=(p||[]).filter(x=>!liked.has(x.id))
+ const candidates: Person[]=(p||[]).filter(x=>!liked.has(x.id))
  const {data:activeBoosts}=await c.from('boosts').select('user_id').eq('status','active').gt('expires_at',new Date().toISOString())
  const boosted=new Set((activeBoosts||[]).map(x=>x.user_id))
  candidates.forEach(x=>x.boosted=boosted.has(x.id))
