@@ -1,0 +1,7 @@
+'use client'
+import Link from 'next/link'\nimport {useEffect,useState} from 'react'
+import {createClient} from '../../lib/supabase'
+type Match={id:string;other_id:string;display_name:string;photo:string}
+export default function Matches(){const[m,setM]=useState<Match[]>([]);const[c]=useState(createClient());useEffect(()=>{load()},[])
+async function load(){const{data:{user}}=await c.auth.getUser();if(!user){location.href='/login';return}const{data}=await c.from('matches').select('*').or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`).order('created_at',{ascending:false});const out:Match[]=[];for(const x of data||[]){const other=x.user1_id===user.id?x.user2_id:x.user1_id;const{data:p}=await c.from('profiles').select('display_name').eq('id',other).single();const{data:ph}=await c.from('profile_photos').select('storage_path').eq('user_id',other).order('sort_order').limit(1).maybeSingle();out.push({id:x.id,other_id:other,display_name:p?.display_name||'Mingle member',photo:ph?.storage_path||''})}setM(out)}
+return <main className="matches"><nav><b>Mingle-Connect</b><a href="/discover">Discover</a></nav><section><h1>Your Matches 💕</h1>{!m.length?<p className="muted">Your mutual likes will appear here.</p>:<div className="matchGrid">{m.map(x=><div className="matchCard" key={x.id}>{x.photo?<img src={c.storage.from('profile-photos').getPublicUrl(x.photo).data.publicUrl}/>:<div className="noPhoto">♥</div>}<h3>{x.display_name}</h3><Link className="messageLink" href={'/chat/'+x.id}>Message</Link></div>)}</div>}</section></main>}

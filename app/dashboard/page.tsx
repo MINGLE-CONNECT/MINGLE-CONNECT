@@ -1,0 +1,4 @@
+'use client'
+import {useEffect,useState} from 'react'
+import {createClient} from '../../lib/supabase'
+export default function Dashboard(){const[email,setEmail]=useState('');useEffect(()=>{createClient().auth.getUser().then(({data})=>{if(!data.user){window.location.href='/login'}else setEmail(data.user.email||'')})},[]);async function logout(){await createClient().auth.signOut();window.location.href='/login'}return <main className="dashboard"><nav><b>Mingle-Connect</b><button onClick={logout}>Log out</button></nav><section><span className="pill">Signed in</span><h1>Welcome to Mingle-Connect</h1><p>{email}</p><p>Complete your dating profile to start meeting people.</p><a className="primary" href="/profile">Create / edit my profile</a><a className="primary" style={{marginTop:12}} href="/discover">Discover people</a><a className="primary" style={{marginTop:12}} href="/boost">⭐ Boost my profile</a></section></main>}
