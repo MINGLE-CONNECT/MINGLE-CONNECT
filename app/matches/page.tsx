@@ -1,5 +1,6 @@
 'use client'
-import Link from 'next/link'\nimport {useEffect,useState} from 'react'
+import import Link from 'next/link'
+import {useEffect,useState} from 'react'
 import {createClient} from '../../lib/supabase'
 type Match={id:string;other_id:string;display_name:string;photo:string}
 export default function Matches(){const[m,setM]=useState<Match[]>([]);const[c]=useState(createClient());useEffect(()=>{load()},[])
