@@ -22,23 +22,41 @@ type Photo = {
 export default function Discover() {
   const [people, setPeople] = useState<Person[]>([])
   const [photos, setPhotos] = useState<Record<string, Photo[]>>({})
+  const [i, setI] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
 
   const c = createClient()
 
   useEffect(() => {
-    loadPeople()
+    load()
   }, [])
 
-  async function loadPeople() {
+  async function load() {
     setLoading(true)
     setMsg('')
 
-    const { data: { user } } = await c.auth.getUser()
+    const {
+      data: { user }
+    } = await c.auth.getUser()
 
     if (!user) {
       window.location.href = '/login'
+      return
+    }
+
+    const { data: p, error } = await c
+      .from('profiles')
+      .select(
+        'id,display_name,date_of_birth,gender,interested_in,location,bio'
+      )
+      .neq('id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      setMsg(error.message)
+      setLoading(false)
       return
     }
 
@@ -48,83 +66,70 @@ export default function Discover() {
       .eq('liker_id', user.id)
 
     const liked = new Set(
-      (likes || []).map((x: any) => x.liked_id)
+      (likes || []).map(x => x.liked_id)
     )
 
-    const { data: profiles, error } = await c
-      .from('profiles')
-      .select(
-        'id,display_name,date_of_birth,gender,interested_in,location,bio'
-      )
-      .neq('id', user.id)
+    const candidates: Person[] = (p || []).filter(
+      x => !liked.has(x.id)
+    )
 
-    if (error) {
-      setMsg(error.message)
-      setLoading(false)
-      return
-    }
-
-    const { data: boosts } = await c
+    const { data: activeBoosts } = await c
       .from('boosts')
-      .select('user_id,expires_at')
+      .select('user_id')
       .eq('status', 'active')
       .gt('expires_at', new Date().toISOString())
 
-    const boostedUsers = new Set(
-      (boosts || []).map((x: any) => x.user_id)
+    const boosted = new Set(
+      (activeBoosts || []).map(x => x.user_id)
     )
 
-    const candidates: Person[] = (profiles || [])
-      .filter((p: Person) => !liked.has(p.id))
-      .map((p: Person) => ({
-        ...p,
-        boosted: boostedUsers.has(p.id)
-      }))
-      .sort(
-        (a: Person, b: Person) =>
-          Number(Boolean(b.boosted)) -
-          Number(Boolean(a.boosted))
-      )
+    candidates.forEach(x => {
+      x.boosted = boosted.has(x.id)
+    })
 
-    const photoMap: Record<string, Photo[]> = {}
+    candidates.sort(
+      (a, b) =>
+        Number(Boolean(b.boosted)) -
+        Number(Boolean(a.boosted))
+    )
 
-    for (const person of candidates) {
-      const { data } = await c
+    setPeople(candidates)
+    setI(0)
+
+    if (candidates.length) {
+      const { data: ph } = await c
         .from('profile_photos')
-        .select('storage_path,sort_order')
-        .eq('user_id', person.id)
+        .select('user_id,storage_path,sort_order')
+        .in(
+          'user_id',
+          candidates.map(x => x.id)
+        )
         .order('sort_order')
 
-      photoMap[person.id] = data || []
+      const map: Record<string, Photo[]> = {}
+
+      ;(ph || []).forEach(x => {
+        if (!map[x.user_id]) {
+          map[x.user_id] = []
+        }
+
+        map[x.user_id].push({
+          storage_path: x.storage_path,
+          sort_order: x.sort_order
+        })
+      })
+
+      setPhotos(map)
     }
 
-    setPhotos(photoMap)
-    setPeople(candidates)
     setLoading(false)
   }
 
   function age(date: string) {
-    if (!date) return ''
-
-    const dob = new Date(date)
-
-    let years =
-      new Date().getFullYear() -
-      dob.getFullYear()
-
-    const month =
-      new Date().getMonth() -
-      dob.getMonth()
-
-    if (
-      month < 0 ||
-      (month === 0 &&
-        new Date().getDate() < dob.getDate())
-    ) {
-      years--
-    }
-
-    return years
+    return Math.floor(
+      (Date.now() - new Date(date).getTime()) /
+        31557600000
+    )
   }
 
   function photoUrl(path: string) {
@@ -135,12 +140,21 @@ export default function Discover() {
       .data.publicUrl
   }
 
-  async function like(target: Person) {
-    const { data: { user } } = await c.auth.getUser()
+  async function like() {
+    if (!people[i] || busy) return
 
-    if (!user) return
+    setBusy(true)
 
-    setMsg('')
+    const {
+      data: { user }
+    } = await c.auth.getUser()
+
+    if (!user) {
+      window.location.href = '/login'
+      return
+    }
+
+    const target = people[i]
 
     const { error } = await c
       .from('likes')
@@ -149,33 +163,74 @@ export default function Discover() {
         liked_id: target.id
       })
 
-    if (error) {
+    if (
+      error &&
+      !error.message.toLowerCase().includes('duplicate')
+    ) {
       setMsg(error.message)
-      return
+    } else {
+      const { data: mutual } = await c
+        .from('likes')
+        .select('id')
+        .eq('liker_id', target.id)
+        .eq('liked_id', user.id)
+        .maybeSingle()
+
+      if (mutual) {
+        setMsg(
+          `It's a match with ${target.display_name}! 💕`
+        )
+      }
     }
 
-    setPeople(prev =>
-      prev.filter(x => x.id !== target.id)
-    )
+    next()
   }
 
-  async function pass(target: Person) {
-    setPeople(prev =>
-      prev.filter(x => x.id !== target.id)
-    )
+  async function block() {
+    if (!people[i] || busy) return
+
+    const {
+      data: { user }
+    } = await c.auth.getUser()
+
+    if (!user) return
+
+    await c
+      .from('blocks')
+      .insert({
+        blocker_id: user.id,
+        blocked_id: people[i].id
+      })
+
+    setMsg('User blocked.')
+    next()
+  }
+
+  function pass() {
+    if (busy) return
+    next()
+  }
+
+  function next() {
+    setI(x => x + 1)
+    setBusy(false)
   }
 
   if (loading) {
     return (
       <main className="discover-page">
         <div className="discover-loading">
-          Finding people for you... ❤️
+          <div className="discover-heart">♡</div>
+          <h2>Finding people for you...</h2>
+          <p>Good connections take a little time. ❤️</p>
         </div>
       </main>
     )
   }
 
-  const person = people[0]
+  const p = people[i]
+  const currentPhotos = p ? photos[p.id] || [] : []
+  const mainPhoto = currentPhotos[0]
 
   return (
     <main className="discover-page">
@@ -186,25 +241,18 @@ export default function Discover() {
           ←
         </a>
 
-        <div>
+        <div className="discover-brand">
           <strong>Mingle-Connect</strong>
           <small>Discover People</small>
         </div>
 
-        <span>♡</span>
+        <span className="discover-header-heart">
+          ♡
+        </span>
 
       </header>
 
       <section className="discover-content">
-
-        <div className="discover-heading">
-          <h1>Find Your Connection ❤️</h1>
-
-          <p>
-            Meet interesting people and see where the
-            connection takes you.
-          </p>
-        </div>
 
         {msg && (
           <div className="discover-message">
@@ -212,96 +260,112 @@ export default function Discover() {
           </div>
         )}
 
-        {!person ? (
-          <div className="empty-discover">
+        {!p ? (
+
+          <div className="discover-empty">
 
             <div className="empty-heart">
               ♡
             </div>
 
-            <h2>No more people right now</h2>
+            <h1>No more profiles</h1>
 
             <p>
-              Check back later for new people joining
-              Mingle-Connect.
+              You've reached the end of the current list.
             </p>
 
-            <button
-              onClick={loadPeople}
-              className="discover-refresh"
-            >
-              Refresh Discover
+            <button onClick={load}>
+              Find More People
             </button>
 
           </div>
+
         ) : (
 
-          <article className="person-card">
+          <article className="discover-card">
 
-            {person.boosted && (
-              <div className="boosted-badge">
-                ⭐ Boosted Profile
-              </div>
-            )}
+            <div className="discover-photo">
 
-            <div className="person-photo">
-
-              {photos[person.id]?.length ? (
-
+              {mainPhoto ? (
                 <img
-                  src={photoUrl(
-                    photos[person.id][0].storage_path
-                  )}
-                  alt={person.display_name}
+                  src={photoUrl(mainPhoto.storage_path)}
+                  alt={p.display_name}
                 />
-
               ) : (
-
-                <div className="no-photo">
+                <div className="discover-no-photo">
                   <span>♡</span>
                   <strong>No photo yet</strong>
+                  <small>Maybe they're just getting started.</small>
                 </div>
+              )}
 
+              {p.boosted && (
+                <div className="boosted-badge">
+                  ⭐ Boosted
+                </div>
+              )}
+
+              {currentPhotos.length > 1 && (
+                <div className="photo-count">
+                  📸 {currentPhotos.length}
+                </div>
               )}
 
             </div>
 
-            <div className="person-info">
+            <div className="discover-info">
 
-              <h2>
-                {person.display_name || 'Mingle Member'}
-                {person.date_of_birth && (
-                  <span>, {age(person.date_of_birth)}</span>
+              <div className="discover-name-row">
+
+                <div>
+                  <h1>
+                    {p.display_name || 'Mingle Member'}
+                    {p.date_of_birth &&
+                      `, ${age(p.date_of_birth)}`}
+                  </h1>
+
+                  <div className="discover-location">
+                    📍 {p.location || 'Location not set'}
+                  </div>
+                </div>
+
+                <span className="profile-heart-small">
+                  ♡
+                </span>
+
+              </div>
+
+              <div className="discover-details">
+
+                {p.gender && (
+                  <span>👤 {p.gender}</span>
                 )}
-              </h2>
 
-              <p className="person-location">
-                📍 {person.location || 'Location not set'}
-              </p>
+                {p.interested_in && (
+                  <span>❤️ {p.interested_in}</span>
+                )}
 
-              {person.bio ? (
-                <p className="person-bio">
-                  “{person.bio}”
-                </p>
-              ) : (
-                <p className="person-bio empty-bio">
-                  No bio yet.
-                </p>
-              )}
+              </div>
+
+              <div className="discover-bio">
+                {p.bio || 'No bio yet. ❤️'}
+              </div>
 
               <div className="discover-actions">
 
                 <button
-                  className="pass-button"
-                  onClick={() => pass(person)}
+                  className="discover-pass"
+                  onClick={pass}
+                  disabled={busy}
                 >
-                  <span>✕</span>
+                  <span>×</span>
                   Pass
                 </button>
 
                 <button
-                  className="like-button"
-                  onClick={() => like(person)}
+                  className="discover-like"
+                  onClick={like}
+                  disabled={busy}
                 >
                   <span>♥</span>
                   Like
@@ -309,36 +373,15 @@ export default function Discover() {
 
               </div>
 
-              <div className="safety-actions">
+              <div className="discover-safety">
 
-                <a
-                  href={`/report?user=${person.id}`}
-                  className="report-link"
-                >
+                <a href={'/report?user=' + p.id}>
                   🚩 Report
                 </a>
 
                 <button
-                  className="block-link"
-                  onClick={async () => {
-                    const { data: { user } } =
-                      await c.auth.getUser()
-
-                    if (!user) return
-
-                    await c
-                      .from('blocks')
-                      .insert({
-                        blocker_id: user.id,
-                        blocked_id: person.id
-                      })
-
-                    setPeople(prev =>
-                      prev.filter(
-                        x => x.id !== person.id
-                      )
-                    )
-                  }}
+                  type="button"
+                  onClick={block}
                 >
                   🚫 Block
                 </button>
