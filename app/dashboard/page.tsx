@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { createClient } from '../../lib/supabase'
 
@@ -51,7 +52,15 @@ export default function Dashboard() {
           Welcome to<br />
           <span>Mingle-Connect</span>
         </h1>
-
+        <div className="hero-girl">
+  <Image
+    src="/file_0000000011081f4820f48df60d4195d.png"
+    alt="Mingle-Connect"
+    width={420}
+    height={520}
+    priority
+  />
+</div>
         <p className="email">
           {email}
         </p>
