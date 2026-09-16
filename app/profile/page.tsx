@@ -26,7 +26,19 @@ export default function Profile() {
     location: '',
     bio: ''
   })
+const profileCompletion = [
+  f.display_name.trim(),
+  f.date_of_birth,
+  f.gender,
+  f.interested_in,
+  f.location.trim(),
+  f.bio.trim(),
+  photos.length >= 2 ? 'photos' : ''
+].filter(Boolean).length
 
+const completionPercent = Math.round(
+  (profileCompletion / 7) * 100
+)
   useEffect(() => {
     ;(async () => {
       const c = createClient()
