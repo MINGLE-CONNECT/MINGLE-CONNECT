@@ -2510,3 +2510,34 @@ a {
     min-height: 56px;
   }
   }
+ /* Direct Message button */
+.message-button {
+  flex: 1;
+  min-height: 58px;
+  border: 2px solid #ed1682;
+  border-radius: 30px;
+  background: #fff;
+  color: #d20d72;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 0 14px;
+  box-shadow: 0 6px 16px rgba(220, 20, 120, 0.10);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.message-button:active {
+  transform: scale(0.96);
+  background: #fff1f8;
+}
+
+.message-button span {
+  margin-right: 5px;
+}
+
+@media (max-width: 600px) {
+  .message-button {
+    min-height: 56px;
+    font-size: 13px;
+    padding: 0 8px;
+  }
+}
