@@ -53,13 +53,18 @@ export default function Dashboard() {
           <span>Mingle-Connect</span>
         </h1>
         <div className="hero-girl">
-  <Image
-    src="/file_0000000011081f4820f48df60d4195d.png"
-    alt="Mingle-Connect"
-    width={420}
-    height={520}
-    priority
-  />
+  <img
+  src="/file_0000000011081f4820f48df60d4195d.png"
+  alt="Mingle-Connect"
+  className="hero-image"
+/>
+    
+    
+    
+   
+    
+ 
+         
 </div>
         <p className="email">
           {email}
