@@ -2178,3 +2178,166 @@ a {
     font-size: 16px;
   }
 }
+/* =========================================
+   DISCOVER DATING-APP UPGRADE
+   ========================================= */
+
+.photo-counter {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 6;
+  min-width: 38px;
+  padding: 7px 10px;
+  border-radius: 20px;
+  background: rgba(40, 0, 25, .55);
+  color: white;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.person-photo {
+  position: relative;
+}
+
+.person-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,.10),
+    transparent 25%,
+    transparent 72%,
+    rgba(40,0,25,.20)
+  );
+}
+
+.photo-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 7;
+  width: 42px;
+  height: 42px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.88);
+  color: #d71975;
+  font-size: 34px;
+  line-height: 1;
+  box-shadow: 0 5px 18px rgba(50,0,30,.20);
+  cursor: pointer;
+}
+
+.photo-left {
+  left: 12px;
+}
+
+.photo-right {
+  right: 12px;
+}
+
+.photo-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  z-index: 8;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.photo-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.60);
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+
+.photo-dot.active {
+  width: 20px;
+  border-radius: 10px;
+  background: white;
+}
+
+.person-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-heart-small {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff0f7;
+  color: #df1977;
+  font-size: 31px;
+  box-shadow: 0 6px 18px rgba(223,25,119,.12);
+}
+
+.swipe-hint {
+  margin: 12px 0 0;
+  text-align: center;
+  color: #b07a96;
+  font-family: 'Dancing Script', cursive;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.no-photo small {
+  margin-top: 8px;
+  color: #936c81;
+  font-size: 13px;
+}
+
+.like-button {
+  transform: scale(1);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.like-button:active {
+  transform: scale(.96);
+}
+
+.pass-button {
+  transition: transform .15s ease, background .15s ease;
+}
+
+.pass-button:active {
+  transform: scale(.96);
+}
+
+@media (max-width: 480px) {
+
+  .photo-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 30px;
+  }
+
+  .photo-left {
+    left: 9px;
+  }
+
+  .photo-right {
+    right: 9px;
+  }
+
+  .profile-heart-small {
+    width: 44px;
+    height: 44px;
+    font-size: 28px;
+  }
+
+  }
