@@ -25,7 +25,7 @@ export default function Discover() {
   const [photoIndex, setPhotoIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [msg, setMsg] = useState('')
-
+   const [canDirectMessage, setCanDirectMessage] = useState(false)
   const c = createClient()
 
   useEffect(() => {
@@ -76,8 +76,11 @@ export default function Discover() {
 
     const boostedUsers = new Set(
       (boosts || []).map((x: any) => x.user_id)
-    )
-
+     );
+    setCanDirectMessage(
+  (boosts || []).some((x: any) => x.user_id === user.id)
+);
+     
     const candidates: Person[] = (profiles || [])
       .filter((p: Person) => !liked.has(p.id))
       .map((p: Person) => ({
