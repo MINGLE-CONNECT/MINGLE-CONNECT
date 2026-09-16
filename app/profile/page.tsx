@@ -243,6 +243,25 @@ const completionPercent = Math.round(
             Let people know the real you. ❤️
           </p>
         </div>
+        <div className="profile-completion">
+  <div className="completion-header">
+    <strong>Your profile is {completionPercent}% complete ❤️</strong>
+    <span>{profileCompletion}/7</span>
+  </div>
+
+  <div className="completion-bar">
+    <div
+      className="completion-fill"
+      style={{ width: `${completionPercent}%` }}
+    />
+  </div>
+
+  <p>
+    {completionPercent === 100
+      ? 'Your profile is complete! You are ready to connect. 💕'
+      : 'Complete your profile to help people get to know you better.'}
+  </p>
+</div>
 
         <form onSubmit={save}>
 
