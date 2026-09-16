@@ -351,3 +351,246 @@ a {
   object-fit: cover;
   box-shadow: 0 18px 45px rgba(180, 80, 140, 0.25);
 }
+ /* ROMANTIC LOGIN PAGE */
+
+.romantic-auth {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 35px 18px 90px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,255,255,.8), transparent 35%),
+    linear-gradient(145deg, #ffd9e9, #f7b6d4 48%, #d94b91);
+}
+
+.auth-woman {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(255, 170, 205, .18),
+      rgba(100, 0, 55, .42)
+    ),
+    url('/mingle-girl-optimized.jpg');
+  background-size: cover;
+  background-position: center top;
+  opacity: .78;
+  filter: saturate(1.05);
+}
+
+.auth-woman::after {
+  content: "♡  ♡  ♥  ♡  ♡";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 80px;
+  font-size: 28px;
+  color: rgba(255,255,255,.65);
+}
+
+.login-card {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 430px);
+  padding: 30px 24px 26px;
+  border-radius: 34px;
+  background: rgba(255, 250, 253, .94);
+  box-shadow: 0 25px 70px rgba(100, 0, 60, .28);
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
+
+.auth-logo {
+  width: 68px;
+  height: 68px;
+  margin: -5px auto 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 58px;
+  line-height: 1;
+  color: #e21b7a;
+  background: #fff;
+  box-shadow: 0 8px 25px rgba(220, 30, 120, .18);
+}
+
+.login-card h1 {
+  margin: 5px 0 4px;
+  font-size: 30px;
+  color: #35122e;
+  font-weight: 800;
+}
+
+.login-card h1 span {
+  color: #df1977;
+}
+
+.auth-tagline {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #806078;
+  margin-bottom: 22px;
+}
+
+.auth-tagline b {
+  color: #ed237e;
+  margin: 0 5px;
+}
+
+.login-card h2 {
+  margin: 0;
+  font-size: 28px;
+  color: #24152b;
+}
+
+.auth-subtitle {
+  margin: 7px 0 20px;
+  color: #7a6677;
+  font-size: 15px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ead4e1;
+  border-radius: 30px;
+  padding: 16px 20px;
+  font-size: 16px;
+  outline: none;
+  background: #fff;
+  color: #35122e;
+}
+
+.auth-form input:focus {
+  border-color: #e21b7a;
+  box-shadow: 0 0 0 3px rgba(226, 27, 122, .10);
+}
+
+.forgot {
+  text-align: right;
+  color: #dc1974;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.login-main-button {
+  border: 0;
+  border-radius: 30px;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 800;
+  color: white;
+  background: linear-gradient(90deg, #f21d82, #c91472);
+  box-shadow: 0 10px 25px rgba(201, 20, 114, .25);
+  cursor: pointer;
+}
+
+.login-main-button:disabled {
+  opacity: .65;
+}
+
+.auth-message {
+  margin-top: 14px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #ffe5ef;
+  color: #a10d58;
+  font-size: 14px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 15px;
+  color: #887182;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #ead4e1;
+}
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.social-buttons button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid #ead4e1;
+  background: white;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.switch-auth {
+  margin: 20px 0 8px;
+  color: #756173;
+  font-size: 14px;
+}
+
+.switch-auth a {
+  color: #df1977;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.age-notice {
+  margin: 15px 0 0;
+  font-size: 11px;
+  color: #8a7484;
+}
+
+.auth-bottom-text {
+  position: absolute;
+  z-index: 3;
+  bottom: 25px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(70, 0, 40, .5);
+}
+
+@media (max-width: 480px) {
+  .romantic-auth {
+    padding: 25px 14px 85px;
+  }
+
+  .login-card {
+    padding: 25px 18px 22px;
+    border-radius: 30px;
+  }
+
+  .login-card h1 {
+    font-size: 27px;
+  }
+
+  .login-card h2 {
+    font-size: 25px;
+  }
+  }
