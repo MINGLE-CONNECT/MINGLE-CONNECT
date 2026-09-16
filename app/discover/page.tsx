@@ -439,7 +439,20 @@ export default function Discover() {
                   <span>✕</span>
                   Pass
                 </button>
-
+               <button
+  type="button"
+  className="message-button"
+  onClick={() => {
+    if (canDirectMessage) {
+      window.location.href = `/direct-chat/${person.id}`
+    } else {
+      window.location.href = '/boost'
+    }
+  }}
+>
+  <span>💬</span>
+  {canDirectMessage ? 'Message' : 'Boost to Message'}
+</button>
                 <button
                   className="like-button"
                   onClick={() =>
