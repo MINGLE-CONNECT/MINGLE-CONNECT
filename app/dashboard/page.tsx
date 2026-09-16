@@ -57,31 +57,36 @@ export default function Dashboard() {
         </p>
 
         <p className="hero-text">
-          Complete your dating profile to start meeting people.
-        </p>
+  Find meaningful people, create beautiful stories. ❤️
+</p>
+    
+        
 
         <p className="romantic-text">
-          Good People. Great Vibes. ❤️
-        </p>
+  Good People. Great Vibes. Brighter Tomorrows. ♡
+</p>
+     
+     
+    
 
         {/* MAIN ACTIONS */}
         <div className="main-actions">
 
           <Link href="/profile" className="action-button pink">
             <span>👤</span>
-            <span>Create / edit my profile</span>
+            <span>Create / Edit my profile</span>
             <b>›</b>
           </Link>
 
           <Link href="/discover" className="action-button white">
             <span>🔍</span>
-            <span>Discover people</span>
+            <span>Discover People</span>
             <b>›</b>
           </Link>
 
           <Link href="/boost" className="action-button purple">
             <span>⭐</span>
-            <span>Boost my profile</span>
+            
             <b>›</b>
           </Link>
 
@@ -95,25 +100,30 @@ export default function Dashboard() {
           <Link href="/matches" className="quick-card">
             <div>💬</div>
             <strong>Messages</strong>
-            <small>Chat now</small>
+<small>Chat, laugh, get closer</small>
+            
+          
           </Link>
 
           <Link href="/matches" className="quick-card">
             <div>❤️</div>
             <strong>Matches</strong>
-            <small>Your likes</small>
+<small>Maybe your special someone</small>
+            
           </Link>
 
           <Link href="/profile" className="quick-card">
             <div>👁️</div>
-            <strong>Profile Views</strong>
-            <small>See who's interested</small>
+          
+           <strong>Profile Views</strong>
+<small>Someone may be checking you out 👀</small>
           </Link>
 
           <Link href="/boost" className="quick-card">
             <div>👑</div>
             <strong>Premium</strong>
-            <small>Go further</small>
+<small>Unlock more ways to connect ✨</small>
+            
           </Link>
 
         </div>
