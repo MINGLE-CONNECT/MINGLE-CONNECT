@@ -22,20 +22,20 @@ type Photo = {
 export default function Discover() {
   const [people, setPeople] = useState<Person[]>([])
   const [photos, setPhotos] = useState<Record<string, Photo[]>>({})
-  const [i, setI] = useState(0)
+  const [photoIndex, setPhotoIndex] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
 
   const c = createClient()
 
   useEffect(() => {
-    load()
+    loadPeople()
   }, [])
 
-  async function load() {
+  async function loadPeople() {
     setLoading(true)
     setMsg('')
+    setPhotoIndex(0)
 
     const {
       data: { user }
@@ -46,13 +46,21 @@ export default function Discover() {
       return
     }
 
-    const { data: p, error } = await c
+    const { data: likes } = await c
+      .from('likes')
+      .select('liked_id')
+      .eq('liker_id', user.id)
+
+    const liked = new Set(
+      (likes || []).map((x: any) => x.liked_id)
+    )
+
+    const { data: profiles, error } = await c
       .from('profiles')
       .select(
         'id,display_name,date_of_birth,gender,interested_in,location,bio'
       )
       .neq('id', user.id)
-      .order('created_at', { ascending: false })
 
     if (error) {
       setMsg(error.message)
@@ -60,76 +68,67 @@ export default function Discover() {
       return
     }
 
-    const { data: likes } = await c
-      .from('likes')
-      .select('liked_id')
-      .eq('liker_id', user.id)
-
-    const liked = new Set(
-      (likes || []).map(x => x.liked_id)
-    )
-
-    const candidates: Person[] = (p || []).filter(
-      x => !liked.has(x.id)
-    )
-
-    const { data: activeBoosts } = await c
+    const { data: boosts } = await c
       .from('boosts')
-      .select('user_id')
+      .select('user_id,expires_at')
       .eq('status', 'active')
       .gt('expires_at', new Date().toISOString())
 
-    const boosted = new Set(
-      (activeBoosts || []).map(x => x.user_id)
+    const boostedUsers = new Set(
+      (boosts || []).map((x: any) => x.user_id)
     )
 
-    candidates.forEach(x => {
-      x.boosted = boosted.has(x.id)
-    })
+    const candidates: Person[] = (profiles || [])
+      .filter((p: Person) => !liked.has(p.id))
+      .map((p: Person) => ({
+        ...p,
+        boosted: boostedUsers.has(p.id)
+      }))
+      .sort(
+        (a: Person, b: Person) =>
+          Number(Boolean(b.boosted)) -
+          Number(Boolean(a.boosted))
+      )
 
-    candidates.sort(
-      (a, b) =>
-        Number(Boolean(b.boosted)) -
-        Number(Boolean(a.boosted))
-    )
+    const photoMap: Record<string, Photo[]> = {}
 
-    setPeople(candidates)
-    setI(0)
-
-    if (candidates.length) {
-      const { data: ph } = await c
+    for (const person of candidates) {
+      const { data } = await c
         .from('profile_photos')
-        .select('user_id,storage_path,sort_order')
-        .in(
-          'user_id',
-          candidates.map(x => x.id)
-        )
+        .select('storage_path,sort_order')
+        .eq('user_id', person.id)
         .order('sort_order')
 
-      const map: Record<string, Photo[]> = {}
-
-      ;(ph || []).forEach(x => {
-        if (!map[x.user_id]) {
-          map[x.user_id] = []
-        }
-
-        map[x.user_id].push({
-          storage_path: x.storage_path,
-          sort_order: x.sort_order
-        })
-      })
-
-      setPhotos(map)
+      photoMap[person.id] = data || []
     }
 
+    setPhotos(photoMap)
+    setPeople(candidates)
     setLoading(false)
   }
 
   function age(date: string) {
-    return Math.floor(
-      (Date.now() - new Date(date).getTime()) /
-        31557600000
-    )
+    if (!date) return ''
+
+    const dob = new Date(date)
+
+    let years =
+      new Date().getFullYear() -
+      dob.getFullYear()
+
+    const month =
+      new Date().getMonth() -
+      dob.getMonth()
+
+    if (
+      month < 0 ||
+      (month === 0 &&
+        new Date().getDate() < dob.getDate())
+    ) {
+      years--
+    }
+
+    return years
   }
 
   function photoUrl(path: string) {
@@ -140,21 +139,14 @@ export default function Discover() {
       .data.publicUrl
   }
 
-  async function like() {
-    if (!people[i] || busy) return
-
-    setBusy(true)
-
+  async function like(target: Person) {
     const {
       data: { user }
     } = await c.auth.getUser()
 
-    if (!user) {
-      window.location.href = '/login'
-      return
-    }
+    if (!user) return
 
-    const target = people[i]
+    setMsg('')
 
     const { error } = await c
       .from('likes')
@@ -163,96 +155,108 @@ export default function Discover() {
         liked_id: target.id
       })
 
-    if (
-      error &&
-      !error.message.toLowerCase().includes('duplicate')
-    ) {
+    if (error) {
       setMsg(error.message)
-    } else {
-      const { data: mutual } = await c
-        .from('likes')
-        .select('id')
-        .eq('liker_id', target.id)
-        .eq('liked_id', user.id)
-        .maybeSingle()
-
-      if (mutual) {
-        setMsg(
-          `It's a match with ${target.display_name}! 💕`
-        )
-      }
+      return
     }
 
-    next()
+    setPeople(prev =>
+      prev.filter(x => x.id !== target.id)
+    )
+
+    setPhotoIndex(0)
   }
 
-  async function block() {
-    if (!people[i] || busy) return
+  function pass(target: Person) {
+    setPeople(prev =>
+      prev.filter(x => x.id !== target.id)
+    )
 
-    const {
-      data: { user }
-    } = await c.auth.getUser()
-
-    if (!user) return
-
-    await c
-      .from('blocks')
-      .insert({
-        blocker_id: user.id,
-        blocked_id: people[i].id
-      })
-
-    setMsg('User blocked.')
-    next()
+    setPhotoIndex(0)
   }
 
-  function pass() {
-    if (busy) return
-    next()
+  function nextPhoto() {
+    const person = people[0]
+
+    if (!person) return
+
+    const list = photos[person.id] || []
+
+    if (list.length > 1) {
+      setPhotoIndex(
+        index => (index + 1) % list.length
+      )
+    }
   }
 
-  function next() {
-    setI(x => x + 1)
-    setBusy(false)
+  function previousPhoto() {
+    const person = people[0]
+
+    if (!person) return
+
+    const list = photos[person.id] || []
+
+    if (list.length > 1) {
+      setPhotoIndex(
+        index =>
+          (index - 1 + list.length) %
+          list.length
+      )
+    }
   }
 
   if (loading) {
     return (
       <main className="discover-page">
         <div className="discover-loading">
-          <div className="discover-heart">♡</div>
-          <h2>Finding people for you...</h2>
-          <p>Good connections take a little time. ❤️</p>
+          Finding people for you... ❤️
         </div>
       </main>
     )
   }
 
-  const p = people[i]
-  const currentPhotos = p ? photos[p.id] || [] : []
-  const mainPhoto = currentPhotos[0]
+  const person = people[0]
+  const personPhotos = person
+    ? photos[person.id] || []
+    : []
+
+  const currentPhoto =
+    personPhotos[photoIndex]
 
   return (
     <main className="discover-page">
 
       <header className="discover-header">
 
-        <a href="/dashboard" className="discover-back">
+        <a
+          href="/dashboard"
+          className="discover-back"
+        >
           ←
         </a>
 
-        <div className="discover-brand">
+        <div>
           <strong>Mingle-Connect</strong>
           <small>Discover People</small>
         </div>
 
-        <span className="discover-header-heart">
-          ♡
-        </span>
+        <span>♡</span>
 
       </header>
 
       <section className="discover-content">
+
+        <div className="discover-heading">
+
+          <h1>
+            Find Your Connection ❤️
+          </h1>
+
+          <p>
+            Someone special could be one swipe away.
+          </p>
+
+        </div>
 
         {msg && (
           <div className="discover-message">
@@ -260,112 +264,184 @@ export default function Discover() {
           </div>
         )}
 
-        {!p ? (
+        {!person ? (
 
-          <div className="discover-empty">
+          <div className="empty-discover">
 
             <div className="empty-heart">
               ♡
             </div>
 
-            <h1>No more profiles</h1>
+            <h2>
+              No more people right now
+            </h2>
 
             <p>
-              You've reached the end of the current list.
+              Check back later for new people
+              joining Mingle-Connect.
             </p>
 
-            <button onClick={load}>
-              Find More People
+            <button
+              onClick={loadPeople}
+              className="discover-refresh"
+            >
+              Find More People ❤️
             </button>
 
           </div>
 
         ) : (
 
-          <article className="discover-card">
+          <article className="person-card">
 
-            <div className="discover-photo">
+            {person.boosted && (
+              <div className="boosted-badge">
+                ⭐ Boosted Profile
+              </div>
+            )}
 
-              {mainPhoto ? (
-                <img
-                  src={photoUrl(mainPhoto.storage_path)}
-                  alt={p.display_name}
-                />
+            <div className="photo-counter">
+              {personPhotos.length > 0
+                ? `${photoIndex + 1}/${personPhotos.length}`
+                : '♡'}
+            </div>
+
+            <div className="person-photo">
+
+              {currentPhoto ? (
+
+                <>
+
+                  <img
+                    src={photoUrl(
+                      currentPhoto.storage_path
+                    )}
+                    alt={person.display_name}
+                  />
+
+                  {personPhotos.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="photo-arrow photo-left"
+                        onClick={previousPhoto}
+                        aria-label="Previous photo"
+                      >
+                        ‹
+                      </button>
+
+                      <button
+                        type="button"
+                        className="photo-arrow photo-right"
+                        onClick={nextPhoto}
+                        aria-label="Next photo"
+                      >
+                        ›
+                      </button>
+
+                      <div className="photo-dots">
+                        {personPhotos.map(
+                          (_, index) => (
+                            <span
+                              key={index}
+                              className={
+                                index === photoIndex
+                                  ? 'photo-dot active'
+                                  : 'photo-dot'
+                              }
+                            />
+                          )
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                </>
+
               ) : (
-                <div className="discover-no-photo">
+
+                <div className="no-photo">
+
                   <span>♡</span>
-                  <strong>No photo yet</strong>
-                  <small>Maybe they're just getting started.</small>
-                </div>
-              )}
 
-              {p.boosted && (
-                <div className="boosted-badge">
-                  ⭐ Boosted
-                </div>
-              )}
+                  <strong>
+                    No photo yet
+                  </strong>
 
-              {currentPhotos.length > 1 && (
-                <div className="photo-count">
-                  📸 {currentPhotos.length}
+                  <small>
+                    Maybe they're just getting started.
+                  </small>
+
                 </div>
+
               )}
 
             </div>
 
-            <div className="discover-info">
+            <div className="person-info">
 
-              <div className="discover-name-row">
+              <div className="person-name-row">
 
                 <div>
-                  <h1>
-                    {p.display_name || 'Mingle Member'}
-                    {p.date_of_birth &&
-                      `, ${age(p.date_of_birth)}`}
-                  </h1>
 
-                  <div className="discover-location">
-                    📍 {p.location || 'Location not set'}
-                  </div>
+                  <h2>
+                    {person.display_name ||
+                      'Mingle Member'}
+
+                    {person.date_of_birth && (
+                      <span>
+                        , {age(
+                          person.date_of_birth
+                        )}
+                      </span>
+                    )}
+                  </h2>
+
+                  <p className="person-location">
+                    📍{' '}
+                    {person.location ||
+                      'Location not set'}
+                  </p>
+
                 </div>
 
-                <span className="profile-heart-small">
+                <div className="profile-heart-small">
                   ♡
-                </span>
+                </div>
 
               </div>
 
-              <div className="discover-details">
+              {person.bio ? (
 
-                {p.gender && (
-                  <span>👤 {p.gender}</span>
-                )}
+                <p className="person-bio">
+                  “{person.bio}”
+                </p>
 
-                {p.interested_in && (
-                  <span>❤️ {p.interested_in}</span>
-                )}
+              ) : (
 
-              </div>
+                <p className="person-bio empty-bio">
+                  No bio yet. ❤️
+                </p>
 
-              <div className="discover-bio">
-                {p.bio || 'No bio yet. ❤️'}
-              </div>
+              )}
 
               <div className="discover-actions">
 
                 <button
-                  className="discover-pass"
-                  onClick={pass}
-                  disabled={busy}
+                  className="pass-button"
+                  onClick={() =>
+                    pass(person)
+                  }
                 >
-                  <span>×</span>
+                  <span>✕</span>
                   Pass
                 </button>
 
                 <button
-                  className="discover-like"
-                  onClick={like}
-                  disabled={busy}
+                  className="like-button"
+                  onClick={() =>
+                    like(person)
+                  }
                 >
                   <span>♥</span>
                   Like
@@ -373,15 +449,45 @@ export default function Discover() {
 
               </div>
 
-              <div className="discover-safety">
+              <p className="swipe-hint">
+                Choose your feeling ❤️
+              </p>
 
-                <a href={'/report?user=' + p.id}>
+              <div className="safety-actions">
+
+                <a
+                  href={`/report?user=${person.id}`}
+                  className="report-link"
+                >
                   🚩 Report
                 </a>
 
                 <button
-                  type="button"
-                  onClick={block}
+                  className="block-link"
+                  onClick={async () => {
+
+                    const {
+                      data: { user }
+                    } = await c.auth.getUser()
+
+                    if (!user) return
+
+                    await c
+                      .from('blocks')
+                      .insert({
+                        blocker_id: user.id,
+                        blocked_id: person.id
+                      })
+
+                    setPeople(prev =>
+                      prev.filter(
+                        x =>
+                          x.id !== person.id
+                      )
+                    )
+
+                    setPhotoIndex(0)
+                  }}
                 >
                   🚫 Block
                 </button>
@@ -403,7 +509,10 @@ export default function Discover() {
           <small>Home</small>
         </a>
 
-        <a href="/discover" className="active">
+        <a
+          href="/discover"
+          className="active"
+        >
           <span>🔍</span>
           <small>Discover</small>
         </a>
