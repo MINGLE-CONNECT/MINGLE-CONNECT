@@ -1193,3 +1193,327 @@ a {
   font-size: 11px;
   line-height: 1.4;
 }
+/* =========================================
+   ROMANTIC DISCOVER PAGE
+   ========================================= */
+
+.discover-page {
+  min-height: 100vh;
+  padding-bottom: 90px;
+  background:
+    radial-gradient(circle at top right, #ffd5e8 0, transparent 35%),
+    linear-gradient(180deg, #fff7fb 0%, #ffeaf4 100%);
+  color: #35122e;
+}
+
+.discover-header {
+  height: 70px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,.95);
+  border-bottom: 1px solid #f0cddd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.discover-header strong {
+  display: block;
+  color: #d71975;
+  font-size: 19px;
+}
+
+.discover-header small {
+  display: block;
+  margin-top: 2px;
+  color: #8a7182;
+  font-size: 11px;
+}
+
+.discover-header > span {
+  color: #df1977;
+  font-size: 30px;
+}
+
+.discover-back {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff0f7;
+  color: #d71975;
+  font-size: 27px;
+  text-decoration: none;
+}
+
+.discover-content {
+  width: min(100% - 24px, 560px);
+  margin: 0 auto;
+  padding: 20px 0 30px;
+}
+
+.discover-heading {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.discover-heading h1 {
+  margin: 0;
+  color: #35122e;
+  font-size: 26px;
+}
+
+.discover-heading p {
+  margin: 7px auto 0;
+  max-width: 420px;
+  color: #806a79;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.discover-message {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 15px;
+  background: #fff0f7;
+  color: #a20e5a;
+  text-align: center;
+  font-size: 13px;
+}
+
+.person-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  background: white;
+  box-shadow: 0 20px 55px rgba(160,30,100,.18);
+}
+
+.boosted-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 3;
+  padding: 8px 13px;
+  border-radius: 30px;
+  background: rgba(255,255,255,.94);
+  color: #c91472;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 5px 18px rgba(80,0,50,.15);
+}
+
+.person-photo {
+  width: 100%;
+  height: min(72vh, 540px);
+  min-height: 330px;
+  background: linear-gradient(135deg, #f9d5e5, #f4b5d2);
+}
+
+.person-photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.no-photo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at center, #fff 0, transparent 35%),
+    linear-gradient(135deg, #ffdbea, #e99bc0);
+  color: #c91472;
+}
+
+.no-photo span {
+  font-size: 85px;
+  line-height: 1;
+}
+
+.no-photo strong {
+  margin-top: 10px;
+  font-size: 17px;
+}
+
+.person-info {
+  padding: 20px 20px 22px;
+}
+
+.person-info h2 {
+  margin: 0;
+  color: #301329;
+  font-size: 29px;
+}
+
+.person-info h2 span {
+  font-weight: 500;
+}
+
+.person-location {
+  margin: 7px 0 0;
+  color: #806a79;
+  font-size: 14px;
+}
+
+.person-bio {
+  margin: 15px 0 0;
+  padding: 13px 15px;
+  border-radius: 17px;
+  background: #fff5fa;
+  color: #54394e;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.empty-bio {
+  color: #927789;
+  font-style: italic;
+}
+
+.discover-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.pass-button,
+.like-button {
+  border: 0;
+  border-radius: 30px;
+  padding: 15px;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pass-button {
+  background: white;
+  color: #8b647c;
+  border: 2px solid #edc9dc;
+}
+
+.pass-button span {
+  margin-right: 6px;
+}
+
+.like-button {
+  color: white;
+  background: linear-gradient(90deg, #f21d82, #c91472);
+  box-shadow: 0 9px 22px rgba(201,20,114,.25);
+}
+
+.like-button span {
+  margin-right: 6px;
+}
+
+.safety-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 17px;
+}
+
+.report-link,
+.block-link {
+  border: 0;
+  background: transparent;
+  color: #927789;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.empty-discover {
+  padding: 50px 25px;
+  border-radius: 30px;
+  background: rgba(255,255,255,.9);
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(160,30,100,.12);
+}
+
+.empty-heart {
+  width: 85px;
+  height: 85px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff0f7;
+  color: #df1977;
+  font-size: 65px;
+}
+
+.empty-discover h2 {
+  margin: 0;
+  color: #35122e;
+}
+
+.empty-discover p {
+  color: #806a79;
+  line-height: 1.5;
+}
+
+.discover-refresh {
+  border: 0;
+  border-radius: 30px;
+  padding: 14px 22px;
+  color: white;
+  background: linear-gradient(90deg, #f21d82, #c91472);
+  font-weight: 800;
+}
+
+.discover-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d71975;
+  font-size: 18px;
+  font-weight: 700;
+  background: #fff7fb;
+}
+
+@media (max-width: 480px) {
+  .discover-content {
+    width: calc(100% - 16px);
+    padding-top: 14px;
+  }
+
+  .discover-heading h1 {
+    font-size: 23px;
+  }
+
+  .person-card {
+    border-radius: 25px;
+  }
+
+  .person-photo {
+    height: 58vh;
+    min-height: 330px;
+  }
+
+  .person-info {
+    padding: 18px 15px 20px;
+  }
+
+  .person-info h2 {
+    font-size: 26px;
+  }
+
+  .pass-button,
+  .like-button {
+    padding: 14px 10px;
+    font-size: 16px;
+  }
+  }
