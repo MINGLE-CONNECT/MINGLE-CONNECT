@@ -2341,3 +2341,172 @@ a {
   }
 
   }
+/* =========================================
+   MINGLE-CONNECT — FUN & PLAYFUL DISCOVER
+   ========================================= */
+
+.discover-page {
+  background:
+    radial-gradient(circle at 15% 5%, rgba(255, 190, 220, 0.45), transparent 32%),
+    radial-gradient(circle at 90% 20%, rgba(220, 190, 255, 0.30), transparent 30%),
+    linear-gradient(180deg, #fff8fc 0%, #fff 55%, #fff7fb 100%);
+}
+
+.discover-content {
+  width: min(100% - 20px, 560px);
+  padding: 18px 0 100px;
+}
+
+.discover-heading h1 {
+  color: #b91572;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.discover-heading p {
+  color: #866477;
+  font-size: 14px;
+}
+
+/* Main dating card */
+.person-card {
+  border-radius: 30px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(235, 76, 153, 0.12);
+  box-shadow:
+    0 12px 35px rgba(180, 30, 110, 0.12),
+    0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Profile photo */
+.person-photo {
+  height: min(68vh, 520px);
+  min-height: 360px;
+  position: relative;
+  background:
+    linear-gradient(135deg, #ffd9eb, #e9c5f5);
+}
+
+.person-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Profile information */
+.person-info {
+  padding: 22px 20px 20px;
+  background: #fff;
+}
+
+.person-name-row h2 {
+  color: #32132e;
+  font-size: 27px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.person-location {
+  color: #866477;
+  font-size: 15px;
+  margin-top: 7px;
+}
+
+.person-bio {
+  background: #fff1f8;
+  border-radius: 20px;
+  padding: 15px 16px;
+  color: #65445c;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-top: 16px;
+}
+
+/* Like / Pass area */
+.discover-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.discover-actions button {
+  min-height: 58px;
+  border-radius: 30px;
+  font-size: 17px;
+  font-weight: 800;
+  transition: transform 0.15s ease;
+}
+
+.discover-actions button:active {
+  transform: scale(0.96);
+}
+
+.pass-button {
+  background: #fff;
+  border: 2px solid #ead7e4;
+  color: #76566f;
+}
+
+.like-button {
+  background: linear-gradient(135deg, #ed1682, #c90d72);
+  border: none;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(220, 20, 120, 0.25);
+}
+
+/* Little romantic message */
+.swipe-hint {
+  color: #a36d91;
+  font-size: 14px;
+  font-style: italic;
+  margin: 16px 0 4px;
+}
+
+/* Safety controls */
+.safety-actions {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  padding: 12px 0 4px;
+}
+
+.safety-actions button,
+.safety-actions a {
+  color: #98758d;
+  font-size: 13px;
+}
+
+/* Mobile polish */
+@media (max-width: 600px) {
+  .discover-content {
+    width: calc(100% - 16px);
+    padding-top: 14px;
+  }
+
+  .person-card {
+    border-radius: 26px;
+  }
+
+  .person-photo {
+    height: 58vh;
+    min-height: 350px;
+  }
+
+  .person-info {
+    padding: 19px 17px 18px;
+  }
+
+  .person-name-row h2 {
+    font-size: 25px;
+  }
+
+  .discover-actions {
+    gap: 10px;
+  }
+
+  .discover-actions button {
+    min-height: 56px;
+  }
+  }
