@@ -54,7 +54,7 @@ export default function Dashboard() {
         </h1>
         <div className="hero-girl">
   <img
-  src="/mingle-girl.png"
+  src="/mingle-girl-optimized.jpg"
    
   alt="Mingle-Connect"
   className="hero-image"
