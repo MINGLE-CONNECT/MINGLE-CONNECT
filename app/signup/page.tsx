@@ -5,6 +5,7 @@ import { createClient } from '../../lib/supabase'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [msg, setMsg] = useState('')
   const [busy, setBusy] = useState(false)
@@ -65,7 +66,12 @@ export default function Signup() {
         </p>
 
         <div className="auth-form">
-
+        <input
+  type="text"
+  placeholder="Your name"
+  value={name}
+  onChange={e => setName(e.target.value)}
+/>
           <input
             type="email"
             placeholder="Email address"
