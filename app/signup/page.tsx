@@ -23,13 +23,22 @@ export default function Signup() {
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
 
-    const { error } = await createClient().auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${siteUrl}/dashboard`
-      }
+    const { data, error } = await createClient().auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: `${siteUrl}/dashboard`
+  }
+})
+
+if (!error && data.user && name.trim()) {
+  await createClient()
+    .from('profiles')
+    .update({
+      display_name: name.trim()
     })
+    .eq('id', data.user.id)
+}
 
     setMsg(
       error
