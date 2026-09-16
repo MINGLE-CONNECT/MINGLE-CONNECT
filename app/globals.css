@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&display=swap');
 * {
   box-sizing: border-box;
 }
@@ -808,3 +809,24 @@ a {
     gap: 22px;
   }
 }
+/* ROMANTIC HANDWRITING FONT */
+
+.home-bottom,
+.romantic-text,
+.romantic-banner strong,
+.auth-bottom-text {
+  font-family: 'Dancing Script', cursive;
+  font-weight: 700;
+}
+
+.home-bottom {
+  font-size: 24px;
+}
+
+.romantic-text {
+  font-size: 24px;
+}
+
+.auth-bottom-text {
+  font-size: 25px;
+  }
