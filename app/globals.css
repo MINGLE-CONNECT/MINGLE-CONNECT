@@ -1517,3 +1517,334 @@ a {
     font-size: 16px;
   }
   }
+ /* ROMANTIC DISCOVER PAGE */
+
+.discover-page {
+  min-height: 100vh;
+  padding-bottom: 85px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255,255,255,.9), transparent 30%),
+    linear-gradient(145deg, #fff4f9, #ffddea);
+}
+
+.discover-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #f3d5e4;
+}
+
+.discover-back {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff0f7;
+  color: #d71975;
+  text-decoration: none;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.discover-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.discover-brand strong {
+  color: #35122e;
+  font-size: 18px;
+}
+
+.discover-brand small {
+  color: #d71975;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.discover-header-heart {
+  color: #e21b7a;
+  font-size: 30px;
+}
+
+.discover-content {
+  width: min(100%, 560px);
+  margin: 0 auto;
+  padding: 20px 15px 30px;
+  box-sizing: border-box;
+}
+
+.discover-message {
+  margin-bottom: 15px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: #ffe6f1;
+  color: #a10d58;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.discover-card {
+  overflow: hidden;
+  border-radius: 30px;
+  background: white;
+  box-shadow: 0 18px 50px rgba(150, 20, 90, .18);
+  border: 1px solid #f4d3e3;
+}
+
+.discover-photo {
+  position: relative;
+  width: 100%;
+  height: 430px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #ffd7e9, #f5a9cc);
+}
+
+.discover-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.discover-no-photo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #8b496d;
+  background:
+    radial-gradient(circle, rgba(255,255,255,.7), transparent 40%),
+    linear-gradient(145deg, #ffd9e9, #f3afd0);
+}
+
+.discover-no-photo span {
+  font-size: 80px;
+  color: white;
+  text-shadow: 0 5px 20px rgba(180, 20, 100, .2);
+}
+
+.discover-no-photo strong {
+  font-size: 20px;
+  margin-top: 8px;
+}
+
+.discover-no-photo small {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.boosted-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 8px 13px;
+  border-radius: 30px;
+  background: rgba(255,255,255,.94);
+  color: #c91472;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 5px 18px rgba(100,0,50,.15);
+}
+
+.photo-count {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: rgba(50,10,35,.55);
+  color: white;
+  font-size: 12px;
+}
+
+.discover-info {
+  padding: 22px 20px 20px;
+}
+
+.discover-name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.discover-name-row h1 {
+  margin: 0;
+  color: #35122e;
+  font-size: 27px;
+  line-height: 1.15;
+}
+
+.profile-heart-small {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff0f7;
+  color: #e21b7a;
+  font-size: 28px;
+}
+
+.discover-location {
+  margin-top: 8px;
+  color: #806078;
+  font-size: 14px;
+}
+
+.discover-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.discover-details span {
+  padding: 7px 11px;
+  border-radius: 20px;
+  background: #fff1f7;
+  color: #8c486f;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.discover-bio {
+  margin-top: 17px;
+  padding: 15px;
+  border-radius: 18px;
+  background: #fff8fb;
+  color: #624b5d;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.discover-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.discover-actions button {
+  border: 0;
+  border-radius: 28px;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.discover-pass {
+  background: #f5edf2;
+  color: #806b78;
+}
+
+.discover-like {
+  color: white;
+  background: linear-gradient(90deg, #f21d82, #c91472);
+  box-shadow: 0 10px 24px rgba(201,20,114,.25);
+}
+
+.discover-actions button:disabled {
+  opacity: .55;
+}
+
+.discover-safety {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 17px;
+}
+
+.discover-safety a,
+.discover-safety button {
+  border: 0;
+  background: transparent;
+  color: #987f8e;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.discover-empty,
+.discover-loading {
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.empty-heart,
+.discover-heart {
+  font-size: 80px;
+  color: #e21b7a;
+}
+
+.discover-empty h1,
+.discover-loading h2 {
+  color: #35122e;
+  margin: 10px 0 6px;
+}
+
+.discover-empty p,
+.discover-loading p {
+  color: #806078;
+  font-size: 14px;
+}
+
+.discover-empty button {
+  margin-top: 18px;
+  border: 0;
+  border-radius: 28px;
+  padding: 14px 24px;
+  color: white;
+  background: linear-gradient(90deg, #f21d82, #c91472);
+  font-weight: 800;
+}
+
+/* MOBILE */
+
+@media (max-width: 480px) {
+  .discover-header {
+    height: 64px;
+  }
+
+  .discover-brand strong {
+    font-size: 16px;
+  }
+
+  .discover-photo {
+    height: 390px;
+  }
+
+  .discover-info {
+    padding: 20px 16px;
+  }
+
+  .discover-name-row h1 {
+    font-size: 24px;
+  }
+
+  .discover-actions button {
+    padding: 14px 10px;
+  }
+}
