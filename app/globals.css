@@ -594,3 +594,217 @@ a {
     font-size: 25px;
   }
   }
+   /* ROMANTIC MINGLE-CONNECT HOMEPAGE */
+
+.home-page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 35px 18px 95px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 150, 195, .25),
+      rgba(110, 0, 60, .55)
+    ),
+    linear-gradient(145deg, #ffd7e8, #ee8fbc 55%, #9d175f);
+}
+
+.home-background {
+  position: absolute;
+  inset: 0;
+  background-image: url('/mingle-girl-optimized.jpg');
+  background-size: cover;
+  background-position: center top;
+  opacity: .72;
+  filter: saturate(1.08);
+}
+
+.home-background::after {
+  content: "♡  ♡  ♥  ♡  ♡";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 55px;
+  color: rgba(255,255,255,.75);
+  font-size: 30px;
+}
+
+.home-card {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 430px);
+  padding: 30px 24px 25px;
+  border-radius: 35px;
+  background: rgba(255, 249, 253, .95);
+  box-shadow: 0 25px 70px rgba(80, 0, 50, .35);
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
+
+.home-logo {
+  width: 78px;
+  height: 78px;
+  margin: -5px auto 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 62px;
+  color: #df1977;
+  background: white;
+  box-shadow: 0 10px 30px rgba(220, 30, 120, .18);
+}
+
+.home-card h1 {
+  margin: 5px 0;
+  font-size: 31px;
+  font-weight: 800;
+  color: #35122e;
+}
+
+.home-card h1 span {
+  color: #df1977;
+}
+
+.home-tagline {
+  margin: 5px 0 25px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #806078;
+}
+
+.home-tagline b {
+  color: #ed237e;
+  margin: 0 5px;
+}
+
+.home-card h2 {
+  margin: 0;
+  font-size: 29px;
+  line-height: 1.15;
+  color: #24152b;
+}
+
+.home-subtitle {
+  margin: 12px auto 24px;
+  max-width: 340px;
+  color: #756173;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.home-buttons {
+  display: grid;
+  gap: 13px;
+}
+
+.home-button {
+  min-height: 56px;
+  box-sizing: border-box;
+  border-radius: 30px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 30px 1fr 25px;
+  align-items: center;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.home-button.primary {
+  color: white;
+  background: linear-gradient(90deg, #f21d82, #c91472);
+  box-shadow: 0 10px 25px rgba(201, 20, 114, .28);
+}
+
+.home-button.secondary {
+  color: #d71875;
+  background: white;
+  border: 2px solid #edb3cf;
+}
+
+.home-button span {
+  font-size: 24px;
+}
+
+.home-button b {
+  font-size: 21px;
+}
+
+.home-features {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin: 25px 0 20px;
+}
+
+.home-features div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.home-features strong {
+  font-size: 23px;
+}
+
+.home-features span {
+  color: #725d70;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.home-age {
+  margin: 0;
+  color: #8a7484;
+  font-size: 11px;
+}
+
+.home-bottom {
+  position: absolute;
+  z-index: 3;
+  bottom: 25px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: white;
+  font-size: 17px;
+  font-weight: 800;
+  text-shadow: 0 2px 8px rgba(70, 0, 40, .6);
+}
+
+@media (max-width: 480px) {
+  .home-page {
+    padding: 25px 14px 85px;
+  }
+
+  .home-card {
+    padding: 25px 18px 22px;
+    border-radius: 30px;
+  }
+
+  .home-card h1 {
+    font-size: 28px;
+  }
+
+  .home-card h2 {
+    font-size: 26px;
+  }
+
+  .home-logo {
+    width: 70px;
+    height: 70px;
+    font-size: 55px;
+  }
+
+  .home-features {
+    gap: 22px;
+  }
+}
