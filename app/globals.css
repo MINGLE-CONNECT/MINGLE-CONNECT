@@ -2541,3 +2541,266 @@ a {
     padding: 0 8px;
   }
 }
+/* MATCHES PAGE */
+
+.matches-page {
+  min-height: 100vh;
+  padding-bottom: 100px;
+  background:
+    radial-gradient(circle at top left, #ffe6f2, transparent 35%),
+    linear-gradient(180deg, #fff8fc 0%, #fff0f7 100%);
+  color: #3d1835;
+}
+
+.matches-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #f3cfe1;
+  backdrop-filter: blur(10px);
+}
+
+.matches-header > div {
+  flex: 1;
+  text-align: center;
+}
+
+.matches-header strong {
+  display: block;
+  color: #c91472;
+  font-size: 20px;
+}
+
+.matches-header small {
+  display: block;
+  margin-top: 3px;
+  color: #86647c;
+  font-size: 12px;
+}
+
+.matches-header > span {
+  color: #d71975;
+  font-size: 28px;
+}
+
+.matches-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fff0f7;
+  color: #d71975;
+  font-size: 25px;
+  text-decoration: none;
+}
+
+.matches-content {
+  width: min(100% - 28px, 700px);
+  margin: 0 auto;
+  padding: 28px 0 30px;
+}
+
+.matches-title {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.matches-heart {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.matches-title h1 {
+  margin: 0;
+  color: #46183d;
+  font-size: 34px;
+}
+
+.matches-title p {
+  max-width: 500px;
+  margin: 10px auto 0;
+  color: #806a79;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.matches-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #f2c9dd;
+  color: #c91472;
+}
+
+.matches-count span {
+  font-size: 20px;
+}
+
+.match-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid #f2c9dd;
+  box-shadow: 0 8px 25px rgba(122, 34, 91, 0.08);
+}
+
+.match-photo-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.match-photo,
+.match-photo-placeholder {
+  width: 105px;
+  height: 105px;
+  border-radius: 22px;
+  object-fit: cover;
+}
+
+.match-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffe5f1;
+  font-size: 42px;
+}
+
+.match-heart {
+  position: absolute;
+  right: -7px;
+  bottom: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 3px 10px rgba(0,0,0,.12);
+  font-size: 17px;
+}
+
+.match-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.match-info h2 {
+  margin: 0;
+  color: #47183e;
+  font-size: 21px;
+}
+
+.match-info p {
+  margin: 6px 0 12px;
+  color: #806a79;
+  font-size: 12px;
+}
+
+.message-match-button,
+.find-match-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ed1680, #c91472);
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 15px rgba(201, 20, 114, .18);
+}
+
+.message-match-button span {
+  font-size: 20px;
+}
+
+.no-matches {
+  padding: 35px 22px;
+  text-align: center;
+  border-radius: 28px;
+  background: white;
+  border: 1px solid #f2c9dd;
+  box-shadow: 0 8px 25px rgba(122, 34, 91, 0.07);
+}
+
+.no-matches-icon {
+  font-size: 58px;
+  margin-bottom: 10px;
+}
+
+.no-matches h2 {
+  margin: 0;
+  color: #47183e;
+  font-size: 25px;
+}
+
+.no-matches p {
+  margin: 12px auto 22px;
+  max-width: 470px;
+  color: #806a79;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.matches-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff3f9;
+  color: #c91472;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .matches-content {
+    width: min(100% - 20px, 700px);
+    padding-top: 22px;
+  }
+
+  .matches-title h1 {
+    font-size: 30px;
+  }
+
+  .match-card {
+    padding: 13px;
+    gap: 13px;
+  }
+
+  .match-photo,
+  .match-photo-placeholder {
+    width: 88px;
+    height: 88px;
+    border-radius: 18px;
+  }
+
+  .match-info h2 {
+    font-size: 18px;
+  }
+
+  .message-match-button {
+    width: 100%;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
