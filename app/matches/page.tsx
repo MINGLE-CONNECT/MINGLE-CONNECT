@@ -74,7 +74,7 @@ export default function Matches() {
       }
 
       output.push({
-        id: match.id,
+        id: otherId,
         display_name: profile?.display_name || 'Mingle member',
         photo: photoUrl
       })
