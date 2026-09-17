@@ -112,20 +112,20 @@ export default function Dashboard() {
 
         <div className="quick-actions">
 
-          <Link href="/matches" className="quick-card">
-            <div>💬</div>
-            <strong>Messages</strong>
-<small>Chat, laugh, get closer</small>
+          <Link href="/messages" className="quick-card">
+  <div>💬</div>
+  <strong>Messages</strong>
+  <small>Chat, laugh, get closer</small>
+</Link>
             
           
-          </Link>
+          
 
           <Link href="/matches" className="quick-card">
-            <div>❤️</div>
-            <strong>Matches</strong>
-<small>Maybe your special someone</small>
-            
-          </Link>
+  <div>❤️</div>
+  <strong>Matches</strong>
+  <small>Maybe your special someone</small>
+</Link>
 
           <Link href="/profile" className="quick-card">
             <div>👁️</div>
