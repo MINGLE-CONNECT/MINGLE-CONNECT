@@ -11,6 +11,8 @@ type Person = {
   interested_in: string
   location: string
   bio: string
+  latitude?: number | null
+longitude?: number | null
   boosted?: boolean
 }
 
