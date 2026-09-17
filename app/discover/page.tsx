@@ -84,17 +84,76 @@ export default function Discover() {
   (boosts || []).some((x: any) => x.user_id === user.id)
 );
      
-    const candidates: Person[] = (profiles || [])
-      .filter((p: Person) => !liked.has(p.id))
-      .map((p: Person) => ({
-        ...p,
-        boosted: boostedUsers.has(p.id)
-      }))
-      .sort(
-        (a: Person, b: Person) =>
-          Number(Boolean(b.boosted)) -
-          Number(Boolean(a.boosted))
-      )
+    const { data: myProfile } = await c
+  .from('profiles')
+  .select('latitude,longitude')
+  .eq('id', user.id)
+  .maybeSingle()
+
+const myLat = myProfile?.latitude
+const myLng = myProfile?.longitude
+
+function distanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+) {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLng = ((lng2 - lng1) * Math.PI) / 180
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2
+
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+const candidates: Person[] = (profiles || [])
+  .filter((p: Person) => !liked.has(p.id))
+  .map((p: Person) => ({
+    ...p,
+    boosted: boostedUsers.has(p.id)
+  }))
+  .sort((a: Person, b: Person) => {
+    const boostedDifference =
+      Number(Boolean(b.boosted)) -
+      Number(Boolean(a.boosted))
+
+    if (boostedDifference !== 0) {
+      return boostedDifference
+    }
+
+    if (
+      myLat == null ||
+      myLng == null ||
+      a.latitude == null ||
+      a.longitude == null ||
+      b.latitude == null ||
+      b.longitude == null
+    ) {
+      return 0
+    }
+
+    const distanceA = distanceKm(
+      myLat,
+      myLng,
+      a.latitude,
+      a.longitude
+    )
+
+    const distanceB = distanceKm(
+      myLat,
+      myLng,
+      b.latitude,
+      b.longitude
+    )
+
+    return distanceA - distanceB
+  })
 
     const photoMap: Record<string, Photo[]> = {}
 
