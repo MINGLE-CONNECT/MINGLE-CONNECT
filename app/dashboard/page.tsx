@@ -99,11 +99,11 @@ export default function Dashboard() {
             <b>›</b>
           </Link>
 
-          <Link href="/boost" className="action-button purple">
-            <span>⭐</span>
-            
-            <b>›</b>
-          </Link>
+          <Link href="/boost" className="action-button boost-button">
+  <span className="action-icon">🚀⭐</span>
+  <span className="action-text">Boost My Profile</span>
+  <span className="action-arrow">›</span>
+</Link>
 
         </div>
 
