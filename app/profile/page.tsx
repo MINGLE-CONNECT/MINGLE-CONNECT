@@ -200,7 +200,7 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
     setUploading(false)
     e.target.value = ''
   }
-}  }
+  }
 
   
       
