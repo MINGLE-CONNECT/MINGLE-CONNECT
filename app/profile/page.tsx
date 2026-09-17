@@ -120,21 +120,20 @@ const completionPercent = Math.round(
     )
 
     setSaving(false)
+async function upload(e: ChangeEvent<HTMLInputElement>) {
+  const files = Array.from(e.target.files || [])
+
+  if (!files.length) return
+
+  if (photos.length + files.length > 6) {
+    setMsg('You can have a maximum of 6 photos.')
+    return
   }
 
-  async function upload(e: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || [])
+  setUploading(true)
+  setMsg('Uploading your photo... ❤️')
 
-    if (!files.length) return
-
-    if (photos.length + files.length > 6) {
-      setMsg('You can have a maximum of 6 photos.')
-      return
-    }
-
-    setUploading(true)
-    setMsg('')
-
+  try {
     const c = createClient()
 
     for (const file of files) {
@@ -148,14 +147,20 @@ const completionPercent = Math.round(
         break
       }
 
+      const safeName = file.name.replace(
+        /[^a-zA-Z0-9._-]/g,
+        '_'
+      )
+
       const path =
-        `${uid}/${crypto.randomUUID()}-` +
-        file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        `${uid}/${Date.now()}-${safeName}`
 
       const { error } = await c
         .storage
         .from('profile-photos')
-        .upload(path, file, { upsert: false })
+        .upload(path, file, {
+          upsert: false
+        })
 
       if (error) {
         setMsg('Upload failed: ' + error.message)
@@ -171,17 +176,33 @@ const completionPercent = Math.round(
         })
 
       if (dbError) {
-        await c.storage.from('profile-photos').remove([path])
-        setMsg('Could not save photo record: ' + dbError.message)
+        await c.storage
+          .from('profile-photos')
+          .remove([path])
+
+        setMsg(
+          'Photo uploaded but could not be saved: ' +
+          dbError.message
+        )
         break
       }
 
       await loadPhotos(uid)
+      setMsg('Photo added successfully! ❤️')
     }
-
+  } catch (error) {
+    setMsg(
+      'Something went wrong: ' +
+      (error instanceof Error ? error.message : String(error))
+    )
+  } finally {
     setUploading(false)
     e.target.value = ''
   }
+}  }
+
+  
+      
 
   async function removePhoto(photo: Photo) {
     const c = createClient()
