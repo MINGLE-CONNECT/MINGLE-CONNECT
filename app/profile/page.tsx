@@ -120,6 +120,7 @@ const completionPercent = Math.round(
     )
 
     setSaving(false)
+  } 
 async function upload(e: ChangeEvent<HTMLInputElement>) {
   const files = Array.from(e.target.files || [])
 
