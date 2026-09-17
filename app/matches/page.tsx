@@ -212,10 +212,10 @@ export default function Matches() {
           <small>Discover</small>
         </Link>
 
-        <Link href="/messages">
-          <span>💬</span>
-          <small>Messages</small>
-        </Link>
+        <a href="/messages">
+  <span>💬</span>
+  <small>Messages</small>
+</a>
 
         <Link
           href="/matches"
