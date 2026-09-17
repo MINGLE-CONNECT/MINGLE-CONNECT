@@ -14,6 +14,7 @@ type Person = {
   latitude?: number | null
 longitude?: number | null
   boosted?: boolean
+  distanceKm?: number
 }
 
 type Photo = {
@@ -114,10 +115,22 @@ function distanceKm(
 
 const candidates: Person[] = (profiles || [])
   .filter((p: Person) => !liked.has(p.id))
-  .map((p: Person) => ({
-    ...p,
-    boosted: boostedUsers.has(p.id)
-  }))
+.map((p: Person) => ({
+  ...p,
+  boosted: boostedUsers.has(p.id),
+  distanceKm:
+    myLat != null &&
+    myLng != null &&
+    p.latitude != null &&
+    p.longitude != null
+      ? distanceKm(
+          myLat,
+          myLng,
+          p.latitude,
+          p.longitude
+        )
+      : undefined
+}))
   .sort((a: Person, b: Person) => {
     const boostedDifference =
       Number(Boolean(b.boosted)) -
@@ -486,10 +499,17 @@ function handleTouchEnd(e: React.TouchEvent) {
                   </h2>
 
                   <p className="person-location">
-                    📍{' '}
-                    {person.location ||
-                      'Location not set'}
-                  </p>
+  📍 {' '}
+  {person.location || 'Location not set'}
+  {person.distanceKm != null && (
+    <span className="distance-away">
+      {' • '}
+      {person.distanceKm < 1
+        ? `${Math.round(person.distanceKm * 1000)} m away`
+        : `${person.distanceKm.toFixed(1)} km away`}
+    </span>
+  )}
+</p>
 
                 </div>
 
