@@ -59,10 +59,10 @@ export default function Discover() {
     )
 
     const { data: profiles, error } = await c
-      .from('profiles')
-      .select(
-        'id,display_name,date_of_birth,gender,interested_in,location,bio'
-      )
+  .from('profiles')
+  .select(
+    'id,display_name,date_of_birth,gender,interested_in,location,bio,latitude,longitude'
+  )
       .neq('id', user.id)
 
     if (error) {
