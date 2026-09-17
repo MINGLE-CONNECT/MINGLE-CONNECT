@@ -24,7 +24,10 @@ export default function Profile() {
     gender: '',
     interested_in: '',
     location: '',
-    bio: ''
+    bio: '',
+latitude: null as number | null,
+longitude: null as number | null
+
   })
 const profileCompletion = [
   f.display_name.trim(),
@@ -121,6 +124,36 @@ const completionPercent = Math.round(
 
     setSaving(false)
   } 
+  async function getMyLocation() {
+  if (!navigator.geolocation) {
+    setMsg('Location is not supported on this device.')
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      setF(x => ({
+        ...x,
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      }))
+
+      setMsg('📍 Location captured. Tap Save Profile to save it.')
+    },
+    error => {
+      if (error.code === 1) {
+        setMsg('Please allow location access in your browser.')
+      } else {
+        setMsg('Could not get your location. Please try again.')
+      }
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 10000,
+      maximumAge: 300000,
+    }
+  )
+}
 async function upload(e: ChangeEvent<HTMLInputElement>) {
   const files = Array.from(e.target.files || [])
 
@@ -416,6 +449,12 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
                   }
                   placeholder="City or area"
                 />
+                <button
+  type="button"
+  onClick={getMyLocation}
+>
+  📍 Use My Location
+</button>
               </label>
 
               <label>
