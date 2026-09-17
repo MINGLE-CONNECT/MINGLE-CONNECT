@@ -3566,3 +3566,40 @@ a {
     max-height: 54px !important;
   }
 }
+/* =========================================
+   FIX BOTTOM NAV TAP AREAS
+   ========================================= */
+
+.bottom-nav {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 99999 !important;
+
+  display: flex !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.bottom-nav > a {
+  position: relative !important;
+  z-index: 100000 !important;
+
+  flex: 1 1 20% !important;
+  width: 20% !important;
+  min-width: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+.bottom-nav > a span,
+.bottom-nav > a small {
+  pointer-events: none !important;
+}
