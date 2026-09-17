@@ -168,7 +168,7 @@ const candidates: Person[] = (profiles || [])
     return distanceA - distanceB
   })
 
-    const photoMap: Record<string, Photo[]> = {}
+    
 const photoResults = await Promise.all(
   candidates.map(async (person) => {
     const { data } = await c
