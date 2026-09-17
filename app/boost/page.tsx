@@ -44,19 +44,148 @@ export default function BoostPage(){
  }
  function money(kobo:number){return new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(kobo/100)}
  function expiry(){if(!boost?.expires_at)return '';return new Date(boost.expires_at).toLocaleString('en-NG')}
- if(loading)return <main className="boostPage"><p>Loading boosts...</p></main>
- return <main className="boostPage">
-  <nav><a href="/discover">← Discover</a><b>Mingle-Connect</b><a href="/dashboard">Profile</a></nav>
-  <section className="boostWrap">
-   <div className="boostHero"><span className="pill">⭐ Premium</span><h1>Boost your profile</h1><p>Get more visibility and increase your chances of getting a match.</p></div>
-   {boost&&<div className="activeBoost"><strong>🚀 Your profile is boosted</strong><span>Active until {expiry()}</span></div>}
-   {msg&&<div className="notice">{msg}</div>}
-   {paymentStatus&&<a className="primary" href="/boost" style={{display:'inline-block',marginBottom:16}}>Refresh boost status</a>}
-   <div className="boostGrid">{products.map(p=><article className="boostCard" key={p.id}>
-    <div className="boostIcon">🚀</div><h2>{p.name}</h2><p>{p.description}</p><div className="boostPrice">{money(p.price_kobo)}</div>
-    <button onClick={()=>buy(p)} disabled={!!busy}>{busy===p.id?'Opening payment…':'Boost now'}</button>
-   </article>)}</div>
-   <p className="paymentNote">Payments are processed securely by Paystack. Your boost is activated only after payment verification.</p>
-  </section>
- </main>
+ if (loading) {
+  return (
+    <main className="boost-page">
+      <div className="boost-loading">
+        🚀 Loading boost options... ❤️
+      </div>
+    </main>
+  )
+}
+
+return (
+  <main className="boost-page">
+
+    <header className="boost-header">
+      <a href="/dashboard" className="boost-back">←</a>
+
+      <div>
+        <strong>Mingle-Connect</strong>
+        <small>Premium</small>
+      </div>
+
+      <span>⭐</span>
+    </header>
+
+    <section className="boost-content">
+
+      <div className="boost-hero">
+        <div className="boost-hero-icon">🚀⭐</div>
+
+        <h1>Boost your profile</h1>
+
+        <p>
+          Get more visibility and increase your chances
+          of getting a match. ❤️
+        </p>
+      </div>
+
+      {boost && (
+        <div className="active-boost-card">
+          <div className="active-boost-icon">🚀</div>
+
+          <div>
+            <strong>Your profile is boosted! 🎉</strong>
+            <span>
+              Active until{' '}
+              {new Date(boost.expires_at).toLocaleString()}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {msg && (
+        <div className="boost-message">
+          {msg}
+        </div>
+      )}
+
+      <div className="boost-products">
+
+        {products.map(product => (
+          <article
+            className="boost-product-card"
+            key={product.id}
+          >
+
+            <div className="boost-product-icon">
+              🚀
+            </div>
+
+            <div className="boost-product-info">
+              <h2>{product.name}</h2>
+
+              <p>
+                {product.description ||
+                  `Get increased visibility for ${product.duration_minutes} minutes.`}
+              </p>
+
+              <div className="boost-product-bottom">
+
+                <strong>
+                  {money(product.price_kobo)}
+                </strong>
+
+                <button
+                  type="button"
+                  onClick={() => buy(product)}
+                  disabled={busy === product.id}
+                  className="boost-buy-button"
+                >
+                  {busy === product.id
+                    ? 'Opening payment...'
+                    : 'Boost Now 🚀'}
+                </button>
+
+              </div>
+            </div>
+
+          </article>
+        ))}
+
+      </div>
+
+      <div className="boost-security">
+        <div>🔒</div>
+        <p>
+          Payments are processed securely by Paystack.
+          Your boost is activated only after payment
+          verification.
+        </p>
+      </div>
+
+    </section>
+
+    <nav className="bottom-nav">
+
+      <a href="/dashboard">
+        <span>🏠</span>
+        <small>Home</small>
+      </a>
+
+      <a href="/discover">
+        <span>🔎</span>
+        <small>Discover</small>
+      </a>
+
+      <a href="/matches">
+        <span>💬</span>
+        <small>Messages</small>
+      </a>
+
+      <a href="/matches">
+        <span>❤️</span>
+        <small>Matches</small>
+      </a>
+
+      <a href="/profile">
+        <span>👤</span>
+        <small>Profile</small>
+      </a>
+
+    </nav>
+
+  </main>
+)
 }
