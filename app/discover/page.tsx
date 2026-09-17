@@ -23,6 +23,7 @@ export default function Discover() {
   const [people, setPeople] = useState<Person[]>([])
   const [photos, setPhotos] = useState<Record<string, Photo[]>>({})
   const [photoIndex, setPhotoIndex] = useState(0)
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [msg, setMsg] = useState('')
    const [canDirectMessage, setCanDirectMessage] = useState(false)
@@ -207,7 +208,26 @@ export default function Discover() {
       )
     }
   }
+ function handleTouchStart(e: React.TouchEvent) {
+  setTouchStartX(e.touches[0].clientX)
+}
 
+function handleTouchEnd(e: React.TouchEvent) {
+  if (touchStartX === null) return
+
+  const touchEndX = e.changedTouches[0].clientX
+  const distance = touchStartX - touchEndX
+
+  if (Math.abs(distance) > 50) {
+    if (distance > 0) {
+      nextPhoto()
+    } else {
+      previousPhoto()
+    }
+  }
+
+  setTouchStartX(null)
+}
   if (loading) {
     return (
       <main className="discover-page">
@@ -309,7 +329,11 @@ export default function Discover() {
                 : '♡'}
             </div>
 
-            <div className="person-photo">
+            <div
+  className="person-photo"
+  onTouchStart={handleTouchStart}
+  onTouchEnd={handleTouchEnd}
+>
 
               {currentPhoto ? (
 
