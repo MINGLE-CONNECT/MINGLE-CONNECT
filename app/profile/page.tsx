@@ -62,13 +62,15 @@ const completionPercent = Math.round(
 
       if (data) {
         setF({
-          display_name: data.display_name || '',
-          date_of_birth: data.date_of_birth || '',
-          gender: data.gender || '',
-          interested_in: data.interested_in || '',
-          location: data.location || '',
-          bio: data.bio || ''
-        })
+  display_name: data.display_name || '',
+  date_of_birth: data.date_of_birth || '',
+  gender: data.gender || '',
+  interested_in: data.interested_in || '',
+  location: data.location || '',
+  bio: data.bio || '',
+  latitude: data.latitude ?? null,
+  longitude: data.longitude ?? null
+})
       }
 
       await loadPhotos(user.id)
