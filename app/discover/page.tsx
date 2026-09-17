@@ -559,7 +559,7 @@ function handleTouchEnd(e: React.TouchEvent) {
   className="message-button"
   onClick={() => {
     if (canDirectMessage) {
-      window.location.href = `/direct-chat/${person.id}`
+      window.location.href = `/messages/${person.id}`
     } else {
       window.location.href = '/boost'
     }
