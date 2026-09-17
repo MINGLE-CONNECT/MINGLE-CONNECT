@@ -169,16 +169,26 @@ const candidates: Person[] = (profiles || [])
   })
 
     const photoMap: Record<string, Photo[]> = {}
+const photoResults = await Promise.all(
+  candidates.map(async (person) => {
+    const { data } = await c
+      .from('profile_photos')
+      .select('storage_path,sort_order')
+      .eq('user_id', person.id)
+      .order('sort_order')
 
-    for (const person of candidates) {
-      const { data } = await c
-        .from('profile_photos')
-        .select('storage_path,sort_order')
-        .eq('user_id', person.id)
-        .order('sort_order')
-
-      photoMap[person.id] = data || []
+    return {
+      userId: person.id,
+      photos: data || []
     }
+  })
+)
+
+const photoMap: Record<string, Photo[]> = {}
+
+photoResults.forEach((result) => {
+  photoMap[result.userId] = result.photos
+})
 
     setPhotos(photoMap)
     setPeople(candidates)
