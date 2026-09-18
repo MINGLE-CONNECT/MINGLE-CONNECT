@@ -1,5 +1,5 @@
 import './globals.css'
-
+import PresenceTracker from './components/PresenceTracker'
 export const metadata = {
   title: 'Mingle-Connect',
   description: 'Meet people. Make connections. Find your match.',
@@ -12,7 +12,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+  <PresenceTracker />
+  {children}
+</body>
     </html>
   )
 }
