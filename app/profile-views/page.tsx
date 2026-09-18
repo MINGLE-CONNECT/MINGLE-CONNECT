@@ -31,11 +31,17 @@ export default function ProfileViewsPage() {
       return
     }
 
-    const { data: views } = await c
+    const { data: views, error } = await c
       .from('profile_views')
       .select('id, viewer_id, viewed_at')
       .eq('viewed_user_id', user.id)
       .order('viewed_at', { ascending: false })
+
+    if (error) {
+      console.error('Profile views error:', error)
+      setLoading(false)
+      return
+    }
 
     if (!views || views.length === 0) {
       setViewers([])
@@ -70,7 +76,7 @@ export default function ProfileViewsPage() {
 
         return {
           id: view.viewer_id,
-          display_name: profile?.display_name || 'Mingle member',
+          display_name: profile?.display_name || 'Mingle Member',
           photo,
           viewed_at: view.viewed_at,
         }
@@ -82,9 +88,36 @@ export default function ProfileViewsPage() {
   }
 
   function formatViewedAt(date: string) {
-    return new Date(date).toLocaleString([], {
-      dateStyle: 'medium',
-      timeStyle: 'short',
+    const viewedDate = new Date(date)
+    const now = new Date()
+
+    const difference = now.getTime() - viewedDate.getTime()
+    const minutes = Math.floor(difference / 60000)
+
+    if (minutes < 1) {
+      return 'Just now'
+    }
+
+    if (minutes < 60) {
+      return `${minutes} min${minutes === 1 ? '' : 's'} ago`
+    }
+
+    const hours = Math.floor(minutes / 60)
+
+    if (hours < 24) {
+      return `${hours} hour${hours === 1 ? '' : 's'} ago`
+    }
+
+    const days = Math.floor(hours / 24)
+
+    if (days < 7) {
+      return `${days} day${days === 1 ? '' : 's'} ago`
+    }
+
+    return viewedDate.toLocaleDateString([], {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     })
   }
 
@@ -92,39 +125,66 @@ export default function ProfileViewsPage() {
     <main className="profile-views-page">
 
       <header className="profile-views-header">
-        <Link href="/" className="profile-views-back">
+
+        <Link
+          href="/dashboard"
+          className="profile-views-back"
+          aria-label="Back"
+        >
           ←
         </Link>
 
-        <div>
-          <h1>Profile Views</h1>
-          <p>See who has been checking you out 👀</p>
+        <div className="profile-views-title-area">
+          <div className="profile-views-title">
+            <span>👁️</span>
+            <h1>Profile Views</h1>
+          </div>
+
+          <p>
+            People who viewed your profile
+          </p>
         </div>
+
       </header>
 
-      <section className="profile-views-count">
-        <div className="profile-views-count-icon">
+      <section className="profile-views-summary">
+
+        <div className="profile-views-summary-icon">
           👁️
         </div>
 
         <div>
           <strong>{viewers.length}</strong>
+
           <span>
             {viewers.length === 1
               ? 'person viewed your profile'
               : 'people viewed your profile'}
           </span>
         </div>
+
+      </section>
+
+      <section className="profile-views-info">
+        <span>💗</span>
+
+        <p>
+          When someone checks out your profile,
+          they'll appear here.
+        </p>
       </section>
 
       {loading ? (
+
         <div className="profile-views-empty">
-          <div className="profile-views-empty-icon">⏳</div>
+          <div>⏳</div>
           <h2>Loading views...</h2>
-          <p>Checking who has viewed your profile.</p>
         </div>
+
       ) : viewers.length === 0 ? (
+
         <div className="profile-views-empty">
+
           <div className="profile-views-empty-icon">
             👀
           </div>
@@ -132,20 +192,30 @@ export default function ProfileViewsPage() {
           <h2>No profile views yet</h2>
 
           <p>
-            When someone checks out your profile,
-            they will appear here.
+            When someone views your profile,
+            their visit will appear here.
           </p>
 
-          <Link href="/discover" className="profile-views-discover">
+          <Link
+            href="/discover"
+            className="profile-views-discover"
+          >
             Discover People
           </Link>
+
         </div>
+
       ) : (
+
         <section className="profile-views-list">
 
-          <h2>People who viewed you</h2>
+          <div className="profile-views-list-heading">
+            <h2>Recent viewers</h2>
+            <span>{viewers.length}</span>
+          </div>
 
           {viewers.map((viewer) => (
+
             <Link
               key={viewer.id}
               href={`/view-profile/${viewer.id}`}
@@ -153,6 +223,7 @@ export default function ProfileViewsPage() {
             >
 
               <div className="profile-view-avatar">
+
                 {viewer.photo ? (
                   <img
                     src={viewer.photo}
@@ -161,14 +232,19 @@ export default function ProfileViewsPage() {
                 ) : (
                   <span>👤</span>
                 )}
+
               </div>
 
               <div className="profile-view-info">
-                <strong>{viewer.display_name}</strong>
+
+                <strong>
+                  {viewer.display_name}
+                </strong>
 
                 <small>
                   Viewed {formatViewedAt(viewer.viewed_at)}
                 </small>
+
               </div>
 
               <span className="profile-view-arrow">
@@ -176,9 +252,11 @@ export default function ProfileViewsPage() {
               </span>
 
             </Link>
+
           ))}
 
         </section>
+
       )}
 
     </main>
