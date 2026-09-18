@@ -127,7 +127,7 @@ export default function Dashboard() {
   <small>Maybe your special someone</small>
 </Link>
 
-          <Link href="/profile" className="quick-card">
+        <Link href="/profile-views" className="quick-card">
             <div>👁️</div>
           
            <strong>Profile Views</strong>
