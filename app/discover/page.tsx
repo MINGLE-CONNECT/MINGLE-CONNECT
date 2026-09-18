@@ -423,12 +423,14 @@ function handleTouchEnd(e: React.TouchEvent) {
 
                 <>
 
-                  <img
-                    src={photoUrl(
-                      currentPhoto.storage_path
-                    )}
-                    alt={person.display_name}
-                  />
+                  <Link href={`/view-profile/${person.id}`}>
+  <img
+    src={photoUrl(
+      currentPhoto.storage_path
+    )}
+    alt={person.display_name}
+  />
+</Link>
 
                   {personPhotos.length > 1 && (
                     <>
@@ -495,18 +497,23 @@ function handleTouchEnd(e: React.TouchEvent) {
 
                 <div>
 
-                  <h2>
-                    {person.display_name ||
-                      'Mingle Member'}
+                  <Link
+  href={`/view-profile/${person.id}`}
+  className="person-name-link"
+>
+  <h2>
+    {person.display_name ||
+      'Mingle Member'}
 
-                    {person.date_of_birth && (
-                      <span>
-                        , {age(
-                          person.date_of_birth
-                        )}
-                      </span>
-                    )}
-                  </h2>
+    {person.date_of_birth && (
+      <span>
+        {age(
+          person.date_of_birth
+        )}
+      </span>
+    )}
+  </h2>
+</Link>
 
                   <p className="person-location">
   📍 {' '}
