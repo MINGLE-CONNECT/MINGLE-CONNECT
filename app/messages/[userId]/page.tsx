@@ -34,7 +34,27 @@ const [messages, setMessages] = useState<Message[]>([])
   useEffect(() => {
     loadChat()
   }, [userId])
+useEffect(() => {
+  const refreshPresence = async () => {
+    if (!userId) return
 
+    const c = createClient()
+
+    const { data: profile } = await c
+      .from('profiles')
+      .select('last_seen')
+      .eq('id', userId)
+      .maybeSingle()
+
+    setLastSeen(profile?.last_seen || null)
+  }
+
+  refreshPresence()
+
+  const interval = setInterval(refreshPresence, 30000)
+
+  return () => clearInterval(interval)
+}, [userId])
   async function loadChat() {
     const c = createClient()
 
