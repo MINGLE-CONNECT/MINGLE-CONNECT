@@ -161,29 +161,28 @@ export default function DirectChat() {
           ←
         </Link>
 
-        <div className="direct-chat-person">
+        <Link
+  href={`/view-profile/${userId}`}
+  className="direct-chat-person"
+>
+  <div className="direct-chat-avatar">
+    {photo ? (
+      <img
+        src={photo}
+        alt={name}
+      />
+    ) : (
+      <span>👤</span>
+    )}
+  </div>
 
-          <div className="direct-chat-avatar">
-
-            {photo ? (
-              <img
-                src={photo}
-                alt={name}
-              />
-            ) : (
-              <span>👤</span>
-            )}
-
-          </div>
-
-          <div>
-            <strong>{name}</strong>
-            <small>
-              Private conversation
-            </small>
-          </div>
-
-        </div>
+  <div>
+    <strong>{name}</strong>
+    <small>
+      Private conversation
+    </small>
+  </div>
+</Link>
 
         <span className="direct-chat-heart">
           ❤️
