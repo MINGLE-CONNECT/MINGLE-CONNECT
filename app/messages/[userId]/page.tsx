@@ -20,6 +20,10 @@ export default function DirectChat() {
   const [uid, setUid] = useState('')
   const [name, setName] = useState('Mingle member')
   const [photo, setPhoto] = useState('')
+  const [name, setName] = useState('Mingle member')
+const [photo, setPhoto] = useState('')
+const [lastSeen, setLastSeen] = useState<string | null>(null)
+const [messages, setMessages] = useState<Message[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [body, setBody] = useState('')
   const [loading, setLoading] = useState(true)
@@ -46,13 +50,13 @@ export default function DirectChat() {
     setUid(user.id)
 
     const { data: profile } = await c
-      .from('profiles')
-      .select('display_name')
-      .eq('id', userId)
-      .maybeSingle()
+  .from('profiles')
+  .select('display_name,last_seen')
+  .eq('id', userId)
+  .maybeSingle()
 
     setName(profile?.display_name || 'Mingle member')
-
+  setLastSeen(profile?.last_seen || null)
     const { data: photos } = await c
       .from('profile_photos')
       .select('storage_path')
@@ -149,6 +153,35 @@ export default function DirectChat() {
     )
   }
 
+  function formatLastSeen(dateString: string) {
+  const seconds = Math.floor(
+    (Date.now() - new Date(dateString).getTime()) / 1000
+  )
+
+  if (seconds < 60) {
+    return 'just now'
+  }
+
+  const minutes = Math.floor(seconds / 60)
+
+  if (minutes < 60) {
+    return `${minutes} min ago`
+  }
+
+  const hours = Math.floor(minutes / 60)
+
+  if (hours < 24) {
+    return `${hours} hr ago`
+  }
+
+  const days = Math.floor(hours / 24)
+
+  if (days === 1) {
+    return 'yesterday'
+  }
+
+  return `${days} days ago`
+}
   return (
     <main className="direct-chat-page">
 
@@ -177,11 +210,32 @@ export default function DirectChat() {
   </div>
 
   <div>
-    <strong>{name}</strong>
-    <small>
-      Private conversation
-    </small>
+  <strong>{name}</strong>
+
+  <div className="chat-presence">
+    <span
+      className={
+        lastSeen &&
+        Date.now() - new Date(lastSeen).getTime() < 90000
+          ? 'presence-dot'
+          : 'presence-dot-offline'
+      }
+    ></span>
+
+    <span>
+      {lastSeen &&
+      Date.now() - new Date(lastSeen).getTime() < 90000
+        ? 'Online'
+        : lastSeen
+        ? `Last seen ${formatLastSeen(lastSeen)}`
+        : 'Offline'}
+    </span>
   </div>
+
+  <small>
+    Private conversation
+  </small>
+</div>
 </Link>
 
         <span className="direct-chat-heart">
