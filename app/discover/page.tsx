@@ -648,10 +648,7 @@ function handleTouchEnd(e: React.TouchEvent) {
           <small>Discover</small>
         </a>
 
-        <a href="/matches">
-          <span>💬</span>
-          <small>Messages</small>
-        </a>
+        
 
         <a href="/matches">
           <span>❤️</span>
