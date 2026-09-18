@@ -510,10 +510,7 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
           <small>Discover</small>
         </a>
 
-        <a href="/matches">
-          <span>💬</span>
-          <small>Messages</small>
-        </a>
+        
 
         <a href="/matches">
           <span>❤️</span>
