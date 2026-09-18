@@ -36,6 +36,24 @@ export default function ViewProfile() {
   async function loadProfile() {
     const c = createClient()
 
+      const {
+    data: { user },
+  } = await c.auth.getUser()
+
+  if (user && user.id !== userId) {
+    await c
+      .from('profile_views')
+      .upsert(
+        {
+          viewer_id: user.id,
+          viewed_user_id: userId,
+          viewed_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'viewer_id,viewed_user_id',
+        }
+      )
+  }
     const { data: profileData } = await c
       .from('profiles')
       .select(
