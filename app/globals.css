@@ -4120,3 +4120,45 @@ a {
     padding: 10px;
   }
 }
+/* ================================
+   ONLINE / OFFLINE PRESENCE
+   ================================ */
+
+.person-presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #777;
+}
+
+.presence-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.12);
+}
+
+.presence-dot-offline {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  background: #b8b8b8;
+}
+
+.person-presence .presence-dot + span {
+  color: #22a55a;
+  font-weight: 500;
+}
+
+.person-presence .presence-dot-offline + span {
+  color: #888;
+  font-weight: 400;
+}
