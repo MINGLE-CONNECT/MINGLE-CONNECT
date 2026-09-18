@@ -244,7 +244,7 @@ useEffect(() => {
 
     <span>
       {lastSeen &&
-      Date.now() - new Date(lastSeen).getTime() < < 2 * 60 * 1000
+      Date.now() - new Date(lastSeen).getTime() < 2 * 60 * 1000
         ? 'Online'
         : lastSeen
         ? `Last seen ${formatLastSeen(lastSeen)}`
