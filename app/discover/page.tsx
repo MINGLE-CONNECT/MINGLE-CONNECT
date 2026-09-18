@@ -12,9 +12,10 @@ type Person = {
   location: string
   bio: string
   latitude?: number | null
-longitude?: number | null
+  longitude?: number | null
   boosted?: boolean
   distanceKm?: number
+  last_seen?: string | null
 }
 
 type Photo = {
@@ -61,10 +62,9 @@ export default function Discover() {
 
     const { data: profiles, error } = await c
   .from('profiles')
-  .select(
-    'id,display_name,date_of_birth,gender,interested_in,location,bio,latitude,longitude'
-  )
-      .neq('id', user.id)
+  .select('id,display_name,date_of_birth,gender,interested_in,location,bio,latitude,longitude,last_seen')
+  .neq('id', user.id)
+      
 
     if (error) {
       setMsg(error.message)
@@ -218,7 +218,36 @@ photoResults.forEach((result) => {
 
     return years
   }
+function isOnline(lastSeen?: string | null) {
+  if (!lastSeen) return false
 
+  const difference = Date.now() - new Date(lastSeen).getTime()
+
+  return difference < 90000
+}
+
+function lastSeenText(lastSeen?: string | null) {
+  if (!lastSeen) return 'Last seen unavailable'
+
+  const seconds = Math.floor(
+    (Date.now() - new Date(lastSeen).getTime()) / 1000
+  )
+
+  if (seconds < 90) return 'Online'
+
+  if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60)
+    return `Last seen ${minutes} min ago`
+  }
+
+  if (seconds < 86400) {
+    const hours = Math.floor(seconds / 3600)
+    return `Last seen ${hours} hr ago`
+  }
+
+  const days = Math.floor(seconds / 86400)
+  return `Last seen ${days} day${days === 1 ? '' : 's'} ago`
+}
   function photoUrl(path: string) {
     return c
       .storage
@@ -514,7 +543,19 @@ function handleTouchEnd(e: React.TouchEvent) {
     )}
   </h2>
 </Link>
+<div className="person-presence">
+  <span
+    className={
+      isOnline(person.last_seen)
+        ? 'presence-dot online'
+        : 'presence-dot offline'
+    }
+  ></span>
 
+  <span>
+    {lastSeenText(person.last_seen)}
+  </span>
+</div>
                   <p className="person-location">
   📍 {' '}
   {person.location || 'Location not set'}
