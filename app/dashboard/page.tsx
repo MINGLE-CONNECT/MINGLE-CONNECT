@@ -7,11 +7,24 @@ import { createClient } from '../../lib/supabase'
 
 export default function Dashboard() {
   const [email, setEmail] = useState('')
+const [viewCount, setViewCount] = useState(0)
 
   useEffect(() => {
     async function loadUser() {
       const { data } = await createClient().auth.getUser()
+    const c = createClient()
 
+if (data.user) {
+  const { count } = await c
+    .from('profile_views')
+    .select('viewer_id', {
+      count: 'exact',
+      head: true,
+    })
+    .eq('viewed_user_id', data.user.id)
+
+  setViewCount(count || 0)
+}
       if (data.user) {
         setEmail(data.user.email || '')
       }
@@ -128,11 +141,16 @@ export default function Dashboard() {
 </Link>
 
         <Link href="/profile-views" className="quick-card">
-            <div>👁️</div>
-          
-           <strong>Profile Views</strong>
-<small>Someone may be checking you out 👀</small>
-          </Link>
+  <div>👁️</div>
+
+  <strong>Profile Views</strong>
+
+  <small>
+    {viewCount === 0
+      ? 'No views yet 👀'
+      : `${viewCount} ${viewCount === 1 ? 'person has' : 'people have'} viewed you 👀`}
+  </small>
+</Link>
 
           <Link href="/boost" className="quick-card">
             <div>👑</div>
