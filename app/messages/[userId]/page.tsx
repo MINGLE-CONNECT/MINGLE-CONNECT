@@ -216,7 +216,7 @@ const [messages, setMessages] = useState<Message[]>([])
     <span
       className={
         lastSeen &&
-        Date.now() - new Date(lastSeen).getTime() < 90000
+        Date.now() - new Date(lastSeen).getTime() < 2 * 60 * 1000 
           ? 'presence-dot'
           : 'presence-dot-offline'
       }
@@ -224,7 +224,7 @@ const [messages, setMessages] = useState<Message[]>([])
 
     <span>
       {lastSeen &&
-      Date.now() - new Date(lastSeen).getTime() < 90000
+      Date.now() - new Date(lastSeen).getTime() < < 2 * 60 * 1000
         ? 'Online'
         : lastSeen
         ? `Last seen ${formatLastSeen(lastSeen)}`
