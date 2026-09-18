@@ -165,10 +165,7 @@ export default function Dashboard() {
           <small>Discover</small>
         </Link>
 
-        <Link href="/matches">
-          <span>💬</span>
-          <small>Messages</small>
-        </Link>
+
 
         <Link href="/matches">
           <span>❤️</span>
