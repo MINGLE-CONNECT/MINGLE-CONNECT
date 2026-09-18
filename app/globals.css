@@ -4162,3 +4162,37 @@ a {
   color: #888;
   font-weight: 400;
 }
+.chat-presence {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.chat-presence .presence-dot,
+.chat-presence .presence-dot-offline {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.chat-presence .presence-dot {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.12);
+}
+
+.chat-presence .presence-dot-offline {
+  background: #b8b8b8;
+}
+
+.chat-presence .presence-dot + span {
+  color: #22a55a;
+  font-weight: 500;
+}
+
+.chat-presence .presence-dot-offline + span {
+  color: #888;
+  }
