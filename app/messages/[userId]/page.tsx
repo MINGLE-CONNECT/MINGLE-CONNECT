@@ -20,11 +20,11 @@ export default function DirectChat() {
   const [uid, setUid] = useState('')
   const [name, setName] = useState('Mingle member')
   const [photo, setPhoto] = useState('')
-  const [name, setName] = useState('Mingle member')
-const [photo, setPhoto] = useState('')
+  
+
 const [lastSeen, setLastSeen] = useState<string | null>(null)
 const [messages, setMessages] = useState<Message[]>([])
-  const [messages, setMessages] = useState<Message[]>([])
+  
   const [body, setBody] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
