@@ -568,11 +568,13 @@ function handleTouchEnd(e: React.TouchEvent) {
 
                   <Link href={`/view-profile/${person.id}`}>
   <img
-    src={photoUrl(
-      currentPhoto.storage_path
-    )}
-    alt={person.display_name}
-  />
+  src={photoUrl(
+    currentPhoto.storage_path
+  )}
+  alt={person.display_name}
+  loading="lazy"
+  decoding="async"
+/>
 </Link>
 
                   {personPhotos.length > 1 && (
