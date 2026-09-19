@@ -326,19 +326,18 @@ if (mutualLike) {
         onConflict: 'user_id,other_id',
       }
     )
-
-  if (reverseMatchError) {
-    setMsg(reverseMatchError.message)
-    return
-  }
+if (reverseMatchError) {
+  setMsg(reverseMatchError.message)
+  return
 }
-}
-    setPeople(prev =>
-      prev.filter(x => x.id !== target.id)
-    )
 
-    setPhotoIndex(0)
-  }
+setPeople(prev =>
+  prev.filter(x => x.id !== target.id)
+)
+
+setPhotoIndex(0)
+}
+
 
   function pass(target: Person) {
     setPeople(prev =>
