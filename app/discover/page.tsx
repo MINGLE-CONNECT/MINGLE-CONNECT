@@ -298,7 +298,9 @@ const { data: mutualLike } = await c
   .maybeSingle()
 
 if (mutualLike) {
-  await c
+  const { error: matchError } = await c
+  .from('matches')
+  .upsert(
     .from('matches')
     .upsert(
       {
@@ -309,7 +311,10 @@ if (mutualLike) {
         onConflict: 'user_id,other_id',
       }
     )
-
+if (matchError) {
+  setMsg(matchError.message)
+  return
+}
   await c
     .from('matches')
     .upsert(
