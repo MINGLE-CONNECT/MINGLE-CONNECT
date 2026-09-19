@@ -10,11 +10,13 @@ type Person = {
   gender: string
   interested_in: string
   location: string
+  country: string
+  languages: string[]
   bio: string
   latitude?: number | null
   longitude?: number | null
   boosted?: boolean
-  distanceKm?: number
+  distanceKm?: number | null
   last_seen?: string | null
 }
 
@@ -62,8 +64,7 @@ export default function Discover() {
 
     const { data: profiles, error } = await c
   .from('profiles')
-  .select('id,display_name,date_of_birth,gender,interested_in,location,bio,latitude,longitude,last_seen')
-  .neq('id', user.id)
+  .select('id,display_name,date_of_birth,gender,interested_in,location,country,languages,bio,latitude,longitude,last_seen')
       
 
     if (error) {
