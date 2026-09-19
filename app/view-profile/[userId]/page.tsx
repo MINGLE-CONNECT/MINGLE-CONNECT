@@ -68,13 +68,21 @@ if (viewError) {
       .order('sort_order', { ascending: true })
 
     const photoUrls =
-      (photoData as Photo[] | null)?.map(photo => {
-        const { data } = c.storage
-          .from('profile-photos')
-          .getPublicUrl(photo.storage_path)
+      const photoUrls =
+  (photoData as Photo[] | null)?.map(photo => {
+    const { data } = c
+      .storage
+      .from('profile-photos')
+      .getPublicUrl(photo.storage_path, {
+        transform: {
+          width: 600,
+          resize: 'contain',
+          quality: 70,
+        },
+      })
 
-        return data.publicUrl
-      }) || []
+    return data.publicUrl
+  }) || []
 
     setPhotos(photoUrls)
     setLoading(false)
