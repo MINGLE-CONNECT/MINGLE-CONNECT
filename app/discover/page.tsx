@@ -44,7 +44,6 @@ const [languageFilter, setLanguageFilter] = useState('')
 
   async function loadPeople() {
     setLoading(true)
-    try { 
     setMsg('')
     setPhotoIndex(0)
 
@@ -201,14 +200,8 @@ for (const photo of photosData || []) {
 
 setPhotos(photoMap)
 setPeople(candidates)
-} catch (error) {
-  console.error("Discover load error:", error)
-  setMsg(error instanceof Error ? error.message : "Failed to load people")
-} finally {
-  setLoading(false)
-}
-}
-  
+setLoading(false)
+  }
 
   function age(date: string) {
     if (!date) return ''
@@ -297,54 +290,13 @@ function lastSeenText(lastSeen?: string | null) {
       setMsg(error.message)
       return
     }
-const { data: mutualLike } = await c
-  .from('likes')
-  .select('id')
-  .eq('liker_id', target.id)
-  .eq('liked_id', user.id)
-  .maybeSingle()
 
-if (mutualLike) {
-  const { error: matchError } = await c
-    .from('matches')
-    .upsert(
-      {
-        user_id: user.id,
-        other_id: target.id,
-      },
-      {
-        onConflict: 'user_id,other_id',
-      }
+    setPeople(prev =>
+      prev.filter(x => x.id !== target.id)
     )
 
-  if (matchError) {
-    setMsg(matchError.message)
-    return
+    setPhotoIndex(0)
   }
-
-  const { error: reverseMatchError } = await c
-    .from('matches')
-    .upsert(
-      {
-        user_id: target.id,
-        other_id: user.id,
-      },
-      {
-        onConflict: 'user_id,other_id',
-      }
-    )
-if (reverseMatchError) {
-  setMsg(reverseMatchError.message)
-  return
-}
-
-setPeople(prev =>
-  prev.filter(x => x.id !== target.id)
-)
-
-setPhotoIndex(0)
-}
-
 
   function pass(target: Person) {
     setPeople(prev =>
@@ -402,7 +354,7 @@ function handleTouchEnd(e: React.TouchEvent) {
   }
 
   setTouchStartX(null)
-
+}
   if (loading) {
     return (
       <main className="discover-page">
@@ -411,7 +363,7 @@ function handleTouchEnd(e: React.TouchEvent) {
         </div>
       </main>
     )
-  } 
+  }
 
   const person = people[0]
   const personPhotos = person
@@ -884,5 +836,3 @@ function handleTouchEnd(e: React.TouchEvent) {
     </main>
   )
 }
-}  
-} 
