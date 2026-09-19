@@ -176,30 +176,30 @@ const candidates: Person[] = (profiles || [])
   })
 
     
-const photoResults = await Promise.all(
-  candidates.map(async (person) => {
-    const { data } = await c
-      .from('profile_photos')
-      .select('storage_path,sort_order')
-      .eq('user_id', person.id)
-      .order('sort_order')
+const userIds = candidates.map((person) => person.id)
 
-    return {
-      userId: person.id,
-      photos: data || []
-    }
-  })
-)
+const { data: photosData } = await c
+  .from('profile_photos')
+  .select('user_id,storage_path,sort_order')
+  .in('user_id', userIds)
+  .order('sort_order')
 
 const photoMap: Record<string, Photo[]> = {}
 
-photoResults.forEach((result) => {
-  photoMap[result.userId] = result.photos
-})
+for (const photo of photosData || []) {
+  if (!photoMap[photo.user_id]) {
+    photoMap[photo.user_id] = []
+  }
 
-    setPhotos(photoMap)
-    setPeople(candidates)
-    setLoading(false)
+  photoMap[photo.user_id].push({
+    storage_path: photo.storage_path,
+    sort_order: photo.sort_order,
+  })
+}
+
+setPhotos(photoMap)
+setPeople(candidates)
+setLoading(false)
   }
 
   function age(date: string) {
