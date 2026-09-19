@@ -4196,3 +4196,52 @@ a {
 .chat-presence .presence-dot-offline + span {
   color: #888;
   }
+/* Mingle-Connect Country & Language Filters */
+
+.discover-filters {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin: 15px 0 20px;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+.discover-filters select {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 38px 0 14px;
+  border: 1px solid #f3a4cf;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #35122e;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(180, 20, 100, 0.08);
+  transition: all 0.2s ease;
+}
+
+.discover-filters select:focus {
+  border-color: #e21b7a;
+  box-shadow: 0 0 0 3px rgba(226, 27, 122, 0.12);
+}
+
+.discover-filters select:hover {
+  border-color: #e21b7a;
+}
+
+@media (max-width: 480px) {
+  .discover-filters {
+    gap: 8px;
+    margin: 12px 0 18px;
+  }
+
+  .discover-filters select {
+    height: 46px;
+    padding: 0 30px 0 11px;
+    font-size: 14px;
+    border-radius: 13px;
+  }
+}
