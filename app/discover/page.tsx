@@ -263,8 +263,6 @@ function lastSeenText(lastSeen?: string | null) {
     .getPublicUrl(path, {
       transform: {
         width: 600,
-        height: 430,
-        resize: 'cover',
         quality: 70,
       },
     })
