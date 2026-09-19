@@ -67,10 +67,16 @@ export default function Matches() {
 
       if (photo?.storage_path) {
         photoUrl = c
-          .storage
-          .from('profile-photos')
-          .getPublicUrl(photo.storage_path)
-          .data.publicUrl
+  .storage
+  .from('profile-photos')
+  .getPublicUrl(photo.storage_path, {
+    transform: {
+      width: 300,
+      resize: 'contain',
+      quality: 70,
+    },
+  })
+  .data.publicUrl
       }
 
       output.push({
