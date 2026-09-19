@@ -44,6 +44,7 @@ const [languageFilter, setLanguageFilter] = useState('')
 
   async function loadPeople() {
     setLoading(true)
+    try { 
     setMsg('')
     setPhotoIndex(0)
 
@@ -200,8 +201,14 @@ for (const photo of photosData || []) {
 
 setPhotos(photoMap)
 setPeople(candidates)
-setLoading(false)
-  }
+} catch (error) {
+  console.error("Discover load error:", error)
+  setMsg(error instanceof Error ? error.message : "Failed to load people")
+} finally {
+  setLoading(false)
+}
+}
+  
 
   function age(date: string) {
     if (!date) return ''
