@@ -118,7 +118,7 @@ function distanceKm(
 }
 
 const candidates: Person[] = (profiles || [])
-  .filter((p: Person) => !liked.has(p.id))
+  .filter((p: Person) => p.id !== user.id && !liked.has(p.id))
 .map((p: Person) => ({
   ...p,
   boosted: boostedUsers.has(p.id),
