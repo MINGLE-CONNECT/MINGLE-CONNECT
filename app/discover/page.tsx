@@ -411,7 +411,7 @@ function handleTouchEnd(e: React.TouchEvent) {
         </div>
       </main>
     )
-  }
+  } 
 
   const person = people[0]
   const personPhotos = person
