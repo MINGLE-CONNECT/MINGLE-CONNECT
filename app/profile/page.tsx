@@ -68,6 +68,8 @@ const completionPercent = Math.round(
   gender: data.gender || '',
   interested_in: data.interested_in || '',
   location: data.location || '',
+  country: data.country || '',
+  languages: Array.isArray(data.languages) ? data.languages : [],
   bio: data.bio || '',
   latitude: data.latitude ?? null,
   longitude: data.longitude ?? null
