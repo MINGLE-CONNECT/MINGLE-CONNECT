@@ -463,7 +463,139 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
   📍 Use My Location
 </button>
               </label>
+<label>
+  Country
+  <input
+    list="country-list"
+    value={f.country}
+    onChange={e =>
+      setF({ ...f, country: e.target.value })
+    }
+    placeholder="Search or select your country"
+    required
+  />
 
+  <datalist id="country-list">
+    <option value="Nigeria" />
+    <option value="Ghana" />
+    <option value="Kenya" />
+    <option value="South Africa" />
+    <option value="United States" />
+    <option value="Canada" />
+    <option value="United Kingdom" />
+    <option value="Australia" />
+    <option value="New Zealand" />
+    <option value="France" />
+    <option value="Germany" />
+    <option value="Italy" />
+    <option value="Spain" />
+    <option value="Portugal" />
+    <option value="Netherlands" />
+    <option value="Belgium" />
+    <option value="Switzerland" />
+    <option value="Austria" />
+    <option value="Sweden" />
+    <option value="Norway" />
+    <option value="Denmark" />
+    <option value="Finland" />
+    <option value="Ireland" />
+    <option value="Poland" />
+    <option value="Greece" />
+    <option value="Turkey" />
+    <option value="Russia" />
+    <option value="Ukraine" />
+    <option value="United Arab Emirates" />
+    <option value="Saudi Arabia" />
+    <option value="Qatar" />
+    <option value="Kuwait" />
+    <option value="India" />
+    <option value="Pakistan" />
+    <option value="Bangladesh" />
+    <option value="China" />
+    <option value="Japan" />
+    <option value="South Korea" />
+    <option value="Singapore" />
+    <option value="Malaysia" />
+    <option value="Indonesia" />
+    <option value="Philippines" />
+    <option value="Thailand" />
+    <option value="Vietnam" />
+    <option value="Brazil" />
+    <option value="Argentina" />
+    <option value="Mexico" />
+    <option value="Colombia" />
+    <option value="Chile" />
+    <option value="Peru" />
+    <option value="Venezuela" />
+    <option value="Egypt" />
+    <option value="Morocco" />
+    <option value="Algeria" />
+    <option value="Tunisia" />
+    <option value="Ethiopia" />
+    <option value="Uganda" />
+    <option value="Tanzania" />
+    <option value="Rwanda" />
+    <option value="Zimbabwe" />
+    <option value="Zambia" />
+    <option value="Botswana" />
+    <option value="Namibia" />
+    <option value="Cameroon" />
+    <option value="Ivory Coast" />
+    <option value="Senegal" />
+    <option value="Sierra Leone" />
+    <option value="Liberia" />
+    <option value="Benin" />
+    <option value="Togo" />
+    <option value="Mali" />
+    <option value="Niger" />
+    <option value="Burkina Faso" />
+    <option value="Democratic Republic of the Congo" />
+    <option value="Republic of the Congo" />
+  </datalist>
+</label>
+
+<label>
+  Languages
+  <select
+    multiple
+    value={f.languages}
+    onChange={e =>
+      setF({
+        ...f,
+        languages: Array.from(
+          e.target.selectedOptions,
+          option => option.value
+        )
+      })
+    }
+  >
+    <option value="English">English</option>
+    <option value="French">French</option>
+    <option value="Spanish">Spanish</option>
+    <option value="Portuguese">Portuguese</option>
+    <option value="German">German</option>
+    <option value="Italian">Italian</option>
+    <option value="Arabic">Arabic</option>
+    <option value="Chinese">Chinese</option>
+    <option value="Japanese">Japanese</option>
+    <option value="Korean">Korean</option>
+    <option value="Hindi">Hindi</option>
+    <option value="Russian">Russian</option>
+    <option value="Igbo">Igbo</option>
+    <option value="Yoruba">Yoruba</option>
+    <option value="Hausa">Hausa</option>
+    <option value="Swahili">Swahili</option>
+    <option value="Dutch">Dutch</option>
+    <option value="Turkish">Turkish</option>
+    <option value="Polish">Polish</option>
+    <option value="Greek">Greek</option>
+    <option value="Hebrew">Hebrew</option>
+    <option value="Thai">Thai</option>
+    <option value="Vietnamese">Vietnamese</option>
+    <option value="Malay">Malay</option>
+  </select>
+  <small>Hold/tap to select one or more languages.</small>
+</label>
               <label>
                 About me
                 <textarea
