@@ -19,16 +19,17 @@ export default function Profile() {
   const [photos, setPhotos] = useState<Photo[]>([])
 
   const [f, setF] = useState({
-    display_name: '',
-    date_of_birth: '',
-    gender: '',
-    interested_in: '',
-    location: '',
-    bio: '',
-latitude: null as number | null,
-longitude: null as number | null
-
-  })
+  display_name: '',
+  date_of_birth: '',
+  gender: '',
+  interested_in: '',
+  location: '',
+  country: '',
+  languages: [] as string[],
+  bio: '',
+  latitude: null as number | null,
+  longitude: null as number | null
+})
 const profileCompletion = [
   f.display_name.trim(),
   f.date_of_birth,
