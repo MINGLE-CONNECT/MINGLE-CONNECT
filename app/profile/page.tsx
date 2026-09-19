@@ -35,14 +35,12 @@ const profileCompletion = [
   f.date_of_birth,
   f.gender,
   f.interested_in,
-  f.location.trim(),
-  f.country.trim(),
+ f.location.trim(),
+f.country.trim(),
 f.languages.length > 0 ? 'languages' : '',
 f.bio.trim(),
 photos.length >= 2 ? 'photos' : ''
-  f.bio.trim(),
-  photos.length >= 2 ? 'photos' : ''
-].filter(Boolean).length
+].filter(Boolean).length 
 
 const completionPercent = Math.round(
   (profileCompletion / 9) * 100
