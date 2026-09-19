@@ -36,12 +36,16 @@ const profileCompletion = [
   f.gender,
   f.interested_in,
   f.location.trim(),
+  f.country.trim(),
+f.languages.length > 0 ? 'languages' : '',
+f.bio.trim(),
+photos.length >= 2 ? 'photos' : ''
   f.bio.trim(),
   photos.length >= 2 ? 'photos' : ''
 ].filter(Boolean).length
 
 const completionPercent = Math.round(
-  (profileCompletion / 7) * 100
+  (profileCompletion / 9) * 100
 )
   useEffect(() => {
     ;(async () => {
