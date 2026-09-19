@@ -39,7 +39,7 @@ const [languageFilter, setLanguageFilter] = useState('')
 
   useEffect(() => {
     loadPeople()
-  }, [])
+  }, [countryFilter, languageFilter])
 
   async function loadPeople() {
     setLoading(true)
@@ -134,6 +134,10 @@ const candidates: Person[] = (profiles || [])
         )
       : undefined
 }))
+  .filter((p: Person) =>
+  (!countryFilter || p.country === countryFilter) &&
+  (!languageFilter || p.languages?.includes(languageFilter))
+)
   .sort((a: Person, b: Person) => {
     const boostedDifference =
       Number(Boolean(b.boosted)) -
