@@ -33,6 +33,8 @@ export default function Discover() {
   const [loading, setLoading] = useState(true)
   const [msg, setMsg] = useState('')
    const [canDirectMessage, setCanDirectMessage] = useState(false)
+  const [countryFilter, setCountryFilter] = useState('')
+const [languageFilter, setLanguageFilter] = useState('')
   const c = createClient()
 
   useEffect(() => {
@@ -394,7 +396,114 @@ function handleTouchEnd(e: React.TouchEvent) {
           </p>
 
         </div>
+<div className="discover-filters">
+  <select
+    value={countryFilter}
+    onChange={e => setCountryFilter(e.target.value)}
+  >
+    <option value="">🌍 All Countries</option>
+    <option value="Nigeria">Nigeria</option>
+    <option value="Ghana">Ghana</option>
+    <option value="Kenya">Kenya</option>
+    <option value="South Africa">South Africa</option>
+    <option value="United States">United States</option>
+    <option value="Canada">Canada</option>
+    <option value="United Kingdom">United Kingdom</option>
+    <option value="Australia">Australia</option>
+    <option value="New Zealand">New Zealand</option>
+    <option value="France">France</option>
+    <option value="Germany">Germany</option>
+    <option value="Italy">Italy</option>
+    <option value="Spain">Spain</option>
+    <option value="Portugal">Portugal</option>
+    <option value="Netherlands">Netherlands</option>
+    <option value="Belgium">Belgium</option>
+    <option value="Switzerland">Switzerland</option>
+    <option value="Austria">Austria</option>
+    <option value="Sweden">Sweden</option>
+    <option value="Norway">Norway</option>
+    <option value="Denmark">Denmark</option>
+    <option value="Finland">Finland</option>
+    <option value="Ireland">Ireland</option>
+    <option value="Poland">Poland</option>
+    <option value="Greece">Greece</option>
+    <option value="Turkey">Turkey</option>
+    <option value="Russia">Russia</option>
+    <option value="Ukraine">Ukraine</option>
+    <option value="United Arab Emirates">United Arab Emirates</option>
+    <option value="Saudi Arabia">Saudi Arabia</option>
+    <option value="Qatar">Qatar</option>
+    <option value="Kuwait">Kuwait</option>
+    <option value="India">India</option>
+    <option value="Pakistan">Pakistan</option>
+    <option value="Bangladesh">Bangladesh</option>
+    <option value="China">China</option>
+    <option value="Japan">Japan</option>
+    <option value="South Korea">South Korea</option>
+    <option value="Singapore">Singapore</option>
+    <option value="Malaysia">Malaysia</option>
+    <option value="Indonesia">Indonesia</option>
+    <option value="Philippines">Philippines</option>
+    <option value="Thailand">Thailand</option>
+    <option value="Vietnam">Vietnam</option>
+    <option value="Brazil">Brazil</option>
+    <option value="Argentina">Argentina</option>
+    <option value="Mexico">Mexico</option>
+    <option value="Colombia">Colombia</option>
+    <option value="Chile">Chile</option>
+    <option value="Peru">Peru</option>
+    <option value="Egypt">Egypt</option>
+    <option value="Morocco">Morocco</option>
+    <option value="Algeria">Algeria</option>
+    <option value="Tunisia">Tunisia</option>
+    <option value="Ethiopia">Ethiopia</option>
+    <option value="Uganda">Uganda</option>
+    <option value="Tanzania">Tanzania</option>
+    <option value="Rwanda">Rwanda</option>
+    <option value="Zimbabwe">Zimbabwe</option>
+    <option value="Zambia">Zambia</option>
+    <option value="Cameroon">Cameroon</option>
+    <option value="Ivory Coast">Ivory Coast</option>
+    <option value="Senegal">Senegal</option>
+    <option value="Sierra Leone">Sierra Leone</option>
+    <option value="Liberia">Liberia</option>
+    <option value="Benin">Benin</option>
+    <option value="Togo">Togo</option>
+    <option value="Mali">Mali</option>
+    <option value="Niger">Niger</option>
+  </select>
 
+  <select
+    value={languageFilter}
+    onChange={e => setLanguageFilter(e.target.value)}
+  >
+    <option value="">🗣️ All Languages</option>
+    <option value="English">English</option>
+    <option value="French">French</option>
+    <option value="Spanish">Spanish</option>
+    <option value="Portuguese">Portuguese</option>
+    <option value="German">German</option>
+    <option value="Italian">Italian</option>
+    <option value="Arabic">Arabic</option>
+    <option value="Chinese">Chinese</option>
+    <option value="Japanese">Japanese</option>
+    <option value="Korean">Korean</option>
+    <option value="Hindi">Hindi</option>
+    <option value="Russian">Russian</option>
+    <option value="Igbo">Igbo</option>
+    <option value="Yoruba">Yoruba</option>
+    <option value="Hausa">Hausa</option>
+    <option value="Swahili">Swahili</option>
+    <option value="Dutch">Dutch</option>
+    <option value="Turkish">Turkish</option>
+    <option value="Polish">Polish</option>
+    <option value="Greek">Greek</option>
+    <option value="Hebrew">Hebrew</option>
+    <option value="Thai">Thai</option>
+    <option value="Vietnamese">Vietnamese</option>
+    <option value="Malay">Malay</option>
+  </select>
+</div>
         {msg && (
           <div className="discover-message">
             {msg}
