@@ -290,7 +290,38 @@ function lastSeenText(lastSeen?: string | null) {
       setMsg(error.message)
       return
     }
+const { data: mutualLike } = await c
+  .from('likes')
+  .select('id')
+  .eq('liker_id', target.id)
+  .eq('liked_id', user.id)
+  .maybeSingle()
 
+if (mutualLike) {
+  await c
+    .from('matches')
+    .upsert(
+      {
+        user_id: user.id,
+        other_id: target.id,
+      },
+      {
+        onConflict: 'user_id,other_id',
+      }
+    )
+
+  await c
+    .from('matches')
+    .upsert(
+      {
+        user_id: target.id,
+        other_id: user.id,
+      },
+      {
+        onConflict: 'user_id,other_id',
+      }
+    )
+}
     setPeople(prev =>
       prev.filter(x => x.id !== target.id)
     )
