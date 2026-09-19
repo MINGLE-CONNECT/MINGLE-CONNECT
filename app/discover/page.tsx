@@ -299,8 +299,6 @@ const { data: mutualLike } = await c
 
 if (mutualLike) {
   const { error: matchError } = await c
-  .from('matches')
-  .upsert(
     .from('matches')
     .upsert(
       {
@@ -311,11 +309,13 @@ if (mutualLike) {
         onConflict: 'user_id,other_id',
       }
     )
-if (matchError) {
-  setMsg(matchError.message)
-  return
-}
-  await c
+
+  if (matchError) {
+    setMsg(matchError.message)
+    return
+  }
+
+  const { error: reverseMatchError } = await c
     .from('matches')
     .upsert(
       {
@@ -326,6 +326,12 @@ if (matchError) {
         onConflict: 'user_id,other_id',
       }
     )
+
+  if (reverseMatchError) {
+    setMsg(reverseMatchError.message)
+    return
+  }
+}
 }
     setPeople(prev =>
       prev.filter(x => x.id !== target.id)
