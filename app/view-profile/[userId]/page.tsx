@@ -67,7 +67,7 @@ if (viewError) {
       .eq('user_id', userId)
       .order('sort_order', { ascending: true })
 
-    const photoUrls =
+    
       const photoUrls =
   (photoData as Photo[] | null)?.map(photo => {
     const { data } = c
