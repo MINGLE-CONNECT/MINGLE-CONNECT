@@ -396,7 +396,7 @@ function handleTouchEnd(e: React.TouchEvent) {
   }
 
   setTouchStartX(null)
-}
+
   if (loading) {
     return (
       <main className="discover-page">
