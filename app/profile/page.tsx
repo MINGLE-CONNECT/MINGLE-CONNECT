@@ -261,12 +261,18 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
   }
 
   function photoUrl(path: string) {
-    return createClient()
-      .storage
-      .from('profile-photos')
-      .getPublicUrl(path)
-      .data.publicUrl
-  }
+  return createClient()
+    .storage
+    .from('profile-photos')
+    .getPublicUrl(path, {
+      transform: {
+        width: 600,
+        resize: 'contain',
+        quality: 70,
+      },
+    })
+    .data.publicUrl
+}
 
   if (loading) {
     return (
