@@ -41,6 +41,10 @@ const [callStatus, setCallStatus] = useState<
 
 const [muted, setMuted] = useState(false)
 const [cameraOff, setCameraOff] = useState(false)
+  const [incomingCall, setIncomingCall] = useState<any>(null)
+
+const pendingIceCandidatesRef = useRef<RTCIceCandidateInit[]>([])
+const pendingOfferRef = useRef<RTCSessionDescriptionInit | null>(null)
 const iceServers: RTCConfiguration = {
   iceServers: [
     {
