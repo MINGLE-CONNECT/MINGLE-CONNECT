@@ -169,7 +169,14 @@ async function createPeerConnection(
 
     setCallStatus('idle')
   }
-  }
+    async function acceptCall() {
+  // ...
+}
+
+async function declineCall() {
+  // ...
+}
+  
   useEffect(() => {
     useEffect(() => {
   if (!user?.id) return
