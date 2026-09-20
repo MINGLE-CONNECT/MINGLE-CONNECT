@@ -50,14 +50,20 @@ export default function BoostPage(){
     style: 'currency',
     currency: 'NGN',
     maximumFractionDigits: 0,
-  }).format(naira)}  (≈ ${new Intl.NumberFormat('en-US', {
+  }).format(naira)} (≈ ${new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(usd)})`
 }
- 
+
+function expiry(expiresAt: string | null) {
+  if (!expiresAt) return ''
+  return new Date(expiresAt).toLocaleString('en-NG')
+}
+
+if (loading) {
   return (
     <main className="boost-page">
       <div className="boost-loading">
