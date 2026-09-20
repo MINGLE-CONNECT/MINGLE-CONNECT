@@ -10,7 +10,7 @@ type Message = {
   recipient_id: string
   message: string
   created_at: string
-}
+} 
 
 export default function DirectChat() {
   const params = useParams()
