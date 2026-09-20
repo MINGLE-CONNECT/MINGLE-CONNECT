@@ -171,6 +171,88 @@ async function createPeerConnection(
   }
   }
   useEffect(() => {
+    useEffect(() => {
+  if (!user?.id) return
+
+  const signalChannel = c
+    .channel(`incoming-calls-${user.id}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'call_signals',
+        filter: `receiver_id=eq.${user.id}`,
+      },
+      async (payload) => {
+        const signal = payload.new as {
+          id: string
+          call_id: string
+          sender_id: string
+          receiver_id: string
+          signal_type: 'offer' | 'answer' | 'ice-candidate'
+          signal_data: any
+        }
+
+        try {
+          if (signal.signal_type === 'offer') {
+            const { data: call, error: callError } = await c
+              .from('calls')
+              .select('id, caller_id, receiver_id, call_type, status, room_id')
+              .eq('id', signal.call_id)
+              .maybeSingle()
+
+            if (callError || !call) return
+
+            pendingOfferRef.current = signal.signal_data
+
+            setCallId(call.id)
+            setCallType(call.call_type)
+            setCallStatus('ringing')
+
+            setIncomingCall({
+              callId: call.id,
+              callerId: call.caller_id,
+              callType: call.call_type,
+            })
+          }
+
+          if (signal.signal_type === 'answer') {
+            const peer = peerConnectionRef.current
+
+            if (!peer) return
+
+            await peer.setRemoteDescription(
+              new RTCSessionDescription(signal.signal_data)
+            )
+
+            setCallStatus('connected')
+          }
+
+          if (signal.signal_type === 'ice-candidate') {
+            const candidate = signal.signal_data as RTCIceCandidateInit
+
+            const peer = peerConnectionRef.current
+
+            if (peer && peer.remoteDescription) {
+              await peer.addIceCandidate(
+                new RTCIceCandidate(candidate)
+              )
+            } else {
+              pendingIceCandidatesRef.current.push(candidate)
+            }
+          }
+        } catch (err) {
+          console.error('Incoming call signal error:', err)
+        }
+      }
+    )
+    .subscribe()
+
+  return () => {
+    c.removeChannel(signalChannel)
+  }
+}, [user?.id])
     let channel: any
 
     async function start() {
