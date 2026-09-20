@@ -554,5 +554,7 @@ if (data.user) {
         <small>Profile</small>
       </Link>
     </nav>
-  </main>
+    </main>
 )
+}
+
