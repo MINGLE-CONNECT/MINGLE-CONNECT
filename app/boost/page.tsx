@@ -42,9 +42,22 @@ export default function BoostPage(){
   if(!r.ok){setMsg(j.error||'Unable to start payment.');setBusy(null);return}
   window.location.href=j.authorization_url
  }
- function money(kobo:number){return new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(kobo/100)}
- function expiry(){if(!boost?.expires_at)return '';return new Date(boost.expires_at).toLocaleString('en-NG')}
- if (loading) {
+ function money(kobo: number) {
+  const naira = kobo / 100
+  const usd = naira / 1331.92
+
+  return `${new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    maximumFractionDigits: 0,
+  }).format(naira)}  (≈ ${new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(usd)})`
+}
+ 
   return (
     <main className="boost-page">
       <div className="boost-loading">
