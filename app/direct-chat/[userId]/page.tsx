@@ -321,7 +321,7 @@ async function declineCall() {
       if (channel) {
         c.removeChannel(channel)
       }
-    }
+    
   }, [userId])
 
   useEffect(() => {
