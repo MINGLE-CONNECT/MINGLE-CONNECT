@@ -69,30 +69,47 @@ useEffect(() => {
 
     setUid(user.id)
 
-    const { data: profile } = await c
-  .from('profiles')
-  .select('display_name,last_seen')
-  .eq('id', userId)
-  .maybeSingle()
+        const profilePromise = c
+      .from('profiles')
+      .select('display_name,last_seen')
+      .eq('id', userId)
+      .maybeSingle()
 
-    setName(profile?.display_name || 'Mingle member')
-  setLastSeen(profile?.last_seen || null)
-    const { data: photos } = await c
+    const photoPromise = c
       .from('profile_photos')
       .select('storage_path')
       .eq('user_id', userId)
       .order('sort_order', { ascending: true })
       .limit(1)
 
+    const messagesPromise = loadMessages(user.id)
+
+    const [
+      { data: profile },
+      { data: photos },
+    ] = await Promise.all([
+      profilePromise,
+      photoPromise,
+      messagesPromise,
+    ])
+
+    setName(profile?.display_name || 'Mingle member')
+    setLastSeen(profile?.last_seen || null)
+
     if (photos?.[0]?.storage_path) {
-      const { data } = c.storage
+      const { data } = c
+        .storage
         .from('profile-photos')
-        .getPublicUrl(photos[0].storage_path)
+        .getPublicUrl(photos[0].storage_path, {
+          transform: {
+            width: 200,
+            resize: 'contain',
+            quality: 70,
+          },
+        })
 
       setPhoto(data.publicUrl)
     }
-
-    await loadMessages(user.id)
 
     setLoading(false)
   }
