@@ -41,7 +41,64 @@ const [callStatus, setCallStatus] = useState<
 
 const [muted, setMuted] = useState(false)
 const [cameraOff, setCameraOff] = useState(false)
+const iceServers: RTCConfiguration = {
+  iceServers: [
+    {
+      urls: 'stun:stun.l.google.com:19302',
+    },
+    {
+      urls: 'stun:stun1.l.google.com:19302',
+    },
+  ],
+}
 
+async function createPeerConnection(
+  currentCallId: string,
+  currentCallType: 'voice' | 'video'
+) {
+  if (!user?.id) return null
+
+  const peer = new RTCPeerConnection(iceServers)
+
+  peerConnectionRef.current = peer
+
+  peer.onicecandidate = async (event) => {
+    if (!event.candidate) return
+
+    await c.from('call_signals').insert({
+      call_id: currentCallId,
+      sender_id: user.id,
+      receiver_id: userId,
+      signal_type: 'ice-candidate',
+      signal_data: event.candidate.toJSON(),
+    })
+  }
+
+  peer.ontrack = (event) => {
+    const stream = event.streams[0]
+
+    if (remoteVideoRef.current && stream) {
+      remoteVideoRef.current.srcObject = stream
+    }
+  }
+
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: true,
+    video: currentCallType === 'video',
+  })
+
+  localStreamRef.current = stream
+
+  stream.getTracks().forEach((track) => {
+    peer.addTrack(track, stream)
+  })
+
+  if (localVideoRef.current && currentCallType === 'video') {
+    localVideoRef.current.srcObject = stream
+  }
+
+  return peer
+}
   useEffect(() => {
     let channel: any
 
