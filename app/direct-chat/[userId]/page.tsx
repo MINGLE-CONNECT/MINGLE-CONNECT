@@ -319,33 +319,184 @@ async function declineCall() {
     )
     .subscribe()
 
-  return () => {
-    c.removeChannel(signalChannel)
-  }
-}, [user?.id])
-    useEffect(() => {
-  let channel: any
+  useEffect(() => {
+    if (!user?.id) return
+
+    const signalChannel = c
+      .channel(`incoming-calls-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'call_signals',
+          filter: `receiver_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const signal = payload.new as {
+            id: string
+            call_id: string
+            sender_id: string
+            receiver_id: string
+            signal_type: 'offer' | 'answer' | 'ice-candidate'
+            signal_data: any
+          }
+
+          try {
+            if (signal.signal_type === 'offer') {
+              const { data: call, error: callError } = await c
+                .from('calls')
+                .select(
+                  'id,caller_id,receiver_id,call_type,status,room_id'
+                )
+                .eq('id', signal.call_id)
+                .maybeSingle()
+
+              if (callError || !call) return
+
+              pendingOfferRef.current = signal.signal_data
+
+              setCallId(call.id)
+              setCallType(call.call_type)
+              setCallStatus('ringing')
+
+              setIncomingCall({
+                callId: call.id,
+                callerId: call.caller_id,
+                callType: call.call_type,
+              })
+            }
+
+            if (signal.signal_type === 'answer') {
+              const peer = peerConnectionRef.current
+
+              if (!peer) return
+
+              await peer.setRemoteDescription(
+                new RTCSessionDescription(signal.signal_data)
+              )
+
+              setCallStatus('connected')
+            }
+
+            if (signal.signal_type === 'ice-candidate') {
+              const candidate =
+                signal.signal_data as RTCIceCandidateInit
+
+              const peer = peerConnectionRef.current
+
+              if (peer && peer.remoteDescription) {
+                await peer.addIceCandidate(
+                  new RTCIceCandidate(candidate)
+                )
+              } else {
+                pendingIceCandidatesRef.current.push(candidate)
+              }
+            }
+          } catch (err) {
+            console.error(
+              'Incoming call signal error:',
+              err
+            )
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      c.removeChannel(signalChannel)
+    }
+  }, [user?.id])
+
+  useEffect(() => {
+    let channel: any
 
     async function start() {
       const { data: auth } = await c.auth.getUser()
 
       if (!auth.user) {
         window.location.href = '/login'
+        return
+      }
 
+      setUser(auth.user)
+
+      const { data: profile } = await c
+        .from('profiles')
+        .select('display_name')
+        .eq('id', userId)
+        .maybeSingle()
+
+      setPerson(profile)
+
+      await loadMessages(auth.user.id)
+
+      channel = c
+        .channel(`direct-${auth.user.id}-${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'direct_messages',
+          },
+          (payload) => {
+            const message = payload.new as Message
+
+            if (
+              (message.sender_id === auth.user.id &&
+                message.recipient_id === userId) ||
+              (message.sender_id === userId &&
+                message.recipient_id === auth.user.id)
+            ) {
+              setMessages((prev) => {
+                if (prev.some((m) => m.id === message.id)) {
+                  return prev
+                }
+
+                return [...prev, message]
+              })
+            }
+          }
+        )
+        .subscribe()
+
+      setLoading(false)
+    }
+
+    start()
+
+    return () => {
+      if (channel) {
+        c.removeChannel(channel)
+      }
+    }
+  }, [userId])
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' })
+    endRef.current?.scrollIntoView({
+      behavior: 'smooth',
+    })
   }, [messages])
 
   async function loadMessages(currentUserId: string) {
     const { data, error } = await c
       .from('direct_messages')
-      .select('id,sender_id,recipient_id,message,created_at')
+      .select(
+        'id,sender_id,recipient_id,message,created_at'
+      )
       .or(
         `and(sender_id.eq.${currentUserId},recipient_id.eq.${userId}),and(sender_id.eq.${userId},recipient_id.eq.${currentUserId})`
       )
       .order('created_at', { ascending: true })
 
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    setMessages(data || [])
+  }
     if (error) {
       setError(error.message)
       return
