@@ -260,7 +260,8 @@ async function declineCall() {
     c.removeChannel(signalChannel)
   }
 }, [user?.id])
-    let channel: any
+    useEffect(() => {
+  let channel: any
 
     async function start() {
       const { data: auth } = await c.auth.getUser()
