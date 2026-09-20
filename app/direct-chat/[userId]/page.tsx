@@ -317,7 +317,7 @@ async function declineCall() {
     }
 
     start()
-
+    } 
     return () => {
       if (channel) {
         c.removeChannel(channel)
