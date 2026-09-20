@@ -105,7 +105,7 @@ if (data.user) {
             rgba(5, 2, 4, .25) 75%,
             rgba(5, 2, 4, .55)
           ),
-       url("/images/mingle-couple.png");
+       url("/images/mingle-couple-optimized.jpg");
         background-size: cover;
         background-position: center;
       }
