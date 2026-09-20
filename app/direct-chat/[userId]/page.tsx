@@ -223,7 +223,70 @@ async function declineCall() {
               callType: call.call_type,
             })
           }
+  useEffect(() => {
+    let channel: any
 
+    async function start() {
+      const { data: auth } = await c.auth.getUser()
+
+      if (!auth.user) {
+        window.location.href = '/login'
+        return
+      }
+
+      setUser(auth.user)
+
+      const { data: profile } = await c
+        .from('profiles')
+        .select('display_name')
+        .eq('id', userId)
+        .maybeSingle()
+
+      setPerson(profile)
+
+      await loadMessages(auth.user.id)
+
+      channel = c
+        .channel(`direct-${auth.user.id}-${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'direct_messages',
+          },
+          (payload) => {
+            const message = payload.new as Message
+
+            if (
+              (message.sender_id === auth.user.id &&
+                message.recipient_id === userId) ||
+              (message.sender_id === userId &&
+                message.recipient_id === auth.user.id)
+            ) {
+              setMessages((prev) => {
+                if (prev.some((m) => m.id === message.id)) {
+                  return prev
+                }
+
+                return [...prev, message]
+              })
+            }
+          }
+        )
+        .subscribe()
+
+      setLoading(false)
+    }
+
+    start()
+
+    return () => {
+      if (channel) {
+        c.removeChannel(channel)
+      }
+    }
+  }, [userId])
           if (signal.signal_type === 'answer') {
             const peer = peerConnectionRef.current
 
@@ -268,62 +331,7 @@ async function declineCall() {
 
       if (!auth.user) {
         window.location.href = '/login'
-        return
-      }
 
-      setUser(auth.user)
-
-      const { data: profile } = await c
-        .from('profiles')
-        .select('display_name')
-        .eq('id', userId)
-        .maybeSingle()
-
-      setPerson(profile)
-
-      await loadMessages(auth.user.id)
-
-      channel = c
-        .channel(`direct-${auth.user.id}-${userId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'direct_messages'
-          },
-          (payload) => {
-            const message = payload.new as Message
-
-            if (
-              (message.sender_id === auth.user.id &&
-                message.recipient_id === userId) ||
-              (message.sender_id === userId &&
-                message.recipient_id === auth.user.id)
-            ) {
-              setMessages((prev) => {
-                if (prev.some((m) => m.id === message.id)) {
-                  return prev
-                }
-
-                return [...prev, message]
-              })
-            }
-          }
-        )
-        .subscribe()
-
-      setLoading(false)
-    }
-
-    start()
-    
-    return () => {
-      if (channel) {
-        c.removeChannel(channel)
-      }
-    
-  }, [userId])
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
