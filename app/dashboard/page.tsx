@@ -105,7 +105,7 @@ if (data.user) {
             rgba(5, 2, 4, .25) 75%,
             rgba(5, 2, 4, .55)
           ),
-          url("https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1800&q=90");
+       url("/images/mingle-couple.png");
         background-size: cover;
         background-position: center;
       }
