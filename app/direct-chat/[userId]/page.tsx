@@ -17,15 +17,30 @@ export default function DirectChat() {
   const userId = String(params.userId)
 
   const c = createClient()
-  const endRef = useRef<HTMLDivElement>(null)
+  const c = createClient()
+const endRef = useRef<HTMLDivElement>(null)
 
-  const [user, setUser] = useState<any>(null)
-  const [person, setPerson] = useState<any>(null)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [text, setText] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [sending, setSending] = useState(false)
-  const [error, setError] = useState('')
+const localVideoRef = useRef<HTMLVideoElement>(null)
+const remoteVideoRef = useRef<HTMLVideoElement>(null)
+const peerConnectionRef = useRef<RTCPeerConnection | null>(null)
+const localStreamRef = useRef<MediaStream | null>(null)
+
+const [user, setUser] = useState<any>(null)
+const [person, setPerson] = useState<any>(null)
+const [messages, setMessages] = useState<Message[]>([])
+const [text, setText] = useState('')
+const [loading, setLoading] = useState(true)
+const [sending, setSending] = useState(false)
+const [error, setError] = useState('')
+
+const [callId, setCallId] = useState<string | null>(null)
+const [callType, setCallType] = useState<'voice' | 'video' | null>(null)
+const [callStatus, setCallStatus] = useState<
+  'idle' | 'calling' | 'ringing' | 'connected' | 'ended'
+>('idle')
+
+const [muted, setMuted] = useState(false)
+const [cameraOff, setCameraOff] = useState(false)
 
   useEffect(() => {
     let channel: any
