@@ -17,7 +17,7 @@ export default function DirectChat() {
   const userId = String(params.userId)
 
   const c = createClient()
-  const c = createClient()
+  
 const endRef = useRef<HTMLDivElement>(null)
 
 const localVideoRef = useRef<HTMLVideoElement>(null)
