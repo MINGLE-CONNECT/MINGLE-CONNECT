@@ -35,7 +35,7 @@ if (data.user) {
   
   return (
   <main className="dashboard-page">
-    <style jsx>{`
+    <style>{`
       .dashboard-page {
         min-height: 100vh;
         color: #fff;
