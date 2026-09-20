@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="mc-home">
 
-      <style jsx>{`
+      <style>{`
         * {
           box-sizing: border-box;
         }
