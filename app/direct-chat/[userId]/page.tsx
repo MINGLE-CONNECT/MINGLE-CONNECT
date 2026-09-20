@@ -178,7 +178,7 @@ async function declineCall() {
 }
   
   useEffect(() => {
-    useEffect(() => {
+    
   if (!user?.id) return
 
   const signalChannel = c
