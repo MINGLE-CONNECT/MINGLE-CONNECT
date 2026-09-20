@@ -99,6 +99,73 @@ async function createPeerConnection(
 
   return peer
 }
+  async function startCall(type: 'voice' | 'video') {
+  if (!user?.id || !userId) return
+
+  try {
+    setError('')
+    setCallType(type)
+    setCallStatus('calling')
+
+    const roomId = crypto.randomUUID()
+
+    const { data: call, error: callError } = await c
+      .from('calls')
+      .insert({
+        caller_id: user.id,
+        receiver_id: userId,
+        call_type: type,
+        status: 'ringing',
+        room_id: roomId,
+      })
+      .select()
+      .single()
+
+    if (callError || !call) {
+      setError(callError?.message || 'Unable to start call.')
+      setCallStatus('idle')
+      return
+    }
+
+    setCallId(call.id)
+
+    const peer = await createPeerConnection(call.id, type)
+
+    if (!peer) {
+      setError('Unable to create call connection.')
+      setCallStatus('idle')
+      return
+    }
+
+    const offer = await peer.createOffer()
+
+    await peer.setLocalDescription(offer)
+
+    const { error: signalError } = await c
+      .from('call_signals')
+      .insert({
+        call_id: call.id,
+        sender_id: user.id,
+        receiver_id: userId,
+        signal_type: 'offer',
+        signal_data: offer,
+      })
+
+    if (signalError) {
+      console.error('Call signal error:', signalError)
+      setError('Unable to send call invitation.')
+      setCallStatus('idle')
+    }
+  } catch (err: any) {
+    console.error('Start call error:', err)
+
+    setError(
+      err?.message || 'Unable to start the call.'
+    )
+
+    setCallStatus('idle')
+  }
+  }
   useEffect(() => {
     let channel: any
 
