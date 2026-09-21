@@ -984,16 +984,21 @@ export default function DirectChat() {
 
   <div
   style={{
-    position: 'absolute',
-    right: '58px',
-    top: '50%',
-    transform: 'translateY(-50%)',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: '8px',
-    zIndex: 100,
+    width: '96px',
+    minWidth: '96px',
+    height: '44px',
+    flex: '0 0 96px',
+    flexShrink: 0,
+    marginLeft: 'auto',
+    position: 'relative',
+    zIndex: 9999,
   }}
 >
+  {/* VOICE CALL */}
   <button
     type="button"
     onClick={() => startCall('voice')}
@@ -1006,23 +1011,27 @@ export default function DirectChat() {
       width: '44px',
       height: '44px',
       minWidth: '44px',
-      flexShrink: 0,
+      padding: 0,
+      margin: 0,
       border: 'none',
       borderRadius: '50%',
       background: '#f7c4e6',
       color: '#9b1670',
       fontSize: '21px',
+      lineHeight: 1,
+      visibility: 'visible',
+      opacity: 1,
+      flexShrink: 0,
       cursor:
         callStatus === 'idle'
           ? 'pointer'
           : 'not-allowed',
-      opacity: 1,
-      visibility: 'visible',
     }}
   >
     📞
   </button>
 
+  {/* VIDEO CALL */}
   <button
     type="button"
     onClick={() => startCall('video')}
@@ -1035,18 +1044,21 @@ export default function DirectChat() {
       width: '44px',
       height: '44px',
       minWidth: '44px',
-      flexShrink: 0,
+      padding: 0,
+      margin: 0,
       border: 'none',
       borderRadius: '50%',
       background: '#f7c4e6',
       color: '#9b1670',
       fontSize: '21px',
+      lineHeight: 1,
+      visibility: 'visible',
+      opacity: 1,
+      flexShrink: 0,
       cursor:
         callStatus === 'idle'
           ? 'pointer'
           : 'not-allowed',
-      opacity: 1,
-      visibility: 'visible',
     }}
   >
     📹
