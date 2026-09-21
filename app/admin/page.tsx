@@ -1,820 +1,383 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState,
+} from 'react'
+
 import { createClient } from '../../lib/supabase'
-
-type Report = {
-  id: string
-  reporter_id: string
-  reported_user_id: string
-  reason: string
-  details: string | null
-  status: string
-  created_at: string
-}
-
-type Stats = {
-  users: number
-  messages: number
-  activeBoosts: number
-  calls: number
-  reports: number
-}
 
 type Section =
   | 'users'
-  | 'messages'
   | 'boosts'
+  | 'messages'
   | 'calls'
   | 'reports'
 
+type AdminData = {
+  stats: {
+    users: number
+    messages: number
+    boosts: number
+    activeBoosts: number
+    calls: number
+    reports: number
+    blocks: number
+  }
+
+  users: any[]
+  boosts: any[]
+  messages: any[]
+  calls: any[]
+  reports: any[]
+  blocks: any[]
+}
+
 export default function Admin() {
-  const [allowed, setAllowed] = useState<boolean | null>(null)
-  const [reports, setReports] = useState<Report[]>([])
 
-  const [stats, setStats] = useState<Stats>({
-    users: 0,
-    messages: 0,
-    activeBoosts: 0,
-    calls: 0,
-    reports: 0,
-  })
+  const [allowed, setAllowed] =
+    useState<boolean | null>(null)
 
-  const [msg, setMsg] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] =
+    useState(true)
+
+  const [data, setData] =
+    useState<AdminData | null>(null)
 
   const [activeSection, setActiveSection] =
     useState<Section>('users')
 
+  const [error, setError] =
+    useState('')
+
   useEffect(() => {
-    load()
+    checkAdmin()
   }, [])
 
-  async function load() {
+  async function checkAdmin() {
+
     const c = createClient()
 
-    setLoading(true)
-    setMsg('')
-
     const {
-      data: { user },
+      data: {
+        user,
+      },
     } = await c.auth.getUser()
 
     if (!user) {
-      window.location.href = '/login'
+      window.location.href =
+        '/login'
       return
     }
 
-    // CHECK ADMIN ACCESS
-    const { data: admin, error: adminError } = await c
+    const {
+      data: admin,
+      error: adminError,
+    } = await c
       .from('admin_users')
       .select('user_id')
-      .eq('user_id', user.id)
+      .eq(
+        'user_id',
+        user.id
+      )
       .maybeSingle()
 
     if (adminError) {
-      setMsg(adminError.message)
+      setError(
+        adminError.message
+      )
+
       setAllowed(false)
       setLoading(false)
+
       return
     }
 
     if (!admin) {
       setAllowed(false)
       setLoading(false)
+
       return
     }
 
     setAllowed(true)
 
-    const now = new Date().toISOString()
-
-    // LOAD DASHBOARD STATISTICS
-    const [
-      usersResult,
-      messagesResult,
-      boostsResult,
-      callsResult,
-      reportsCountResult,
-      reportsResult,
-    ] = await Promise.all([
-      c
-        .from('profiles')
-        .select('id', {
-          count: 'exact',
-          head: true,
-        }),
-
-      c
-        .from('direct_messages')
-        .select('id', {
-          count: 'exact',
-          head: true,
-        }),
-
-      c
-        .from('boosts')
-        .select('id', {
-          count: 'exact',
-          head: true,
-        })
-        .eq('status', 'active')
-        .gt('expires_at', now),
-
-      c
-        .from('calls')
-        .select('id', {
-          count: 'exact',
-          head: true,
-        }),
-
-      c
-        .from('reports')
-        .select('id', {
-          count: 'exact',
-          head: true,
-        }),
-
-      c
-        .from('reports')
-        .select('*')
-        .order('created_at', {
-          ascending: false,
-        })
-        .limit(20),
-    ])
-
-    const errors = [
-      usersResult.error,
-      messagesResult.error,
-      boostsResult.error,
-      callsResult.error,
-      reportsCountResult.error,
-      reportsResult.error,
-    ].filter(Boolean)
-
-    if (errors.length > 0) {
-      setMsg(errors[0]?.message || 'Unable to load some admin data.')
-    }
-
-    setStats({
-      users: usersResult.count || 0,
-      messages: messagesResult.count || 0,
-      activeBoosts: boostsResult.count || 0,
-      calls: callsResult.count || 0,
-      reports: reportsCountResult.count || 0,
-    })
-
-    setReports(
-      (reportsResult.data || []) as Report[]
+    await loadAdminData(
+      user.id
     )
-
-    setLoading(false)
   }
 
-  function openSection(section: Section) {
-    setActiveSection(section)
+  async function loadAdminData(
+    userId?: string
+  ) {
+
+    try {
+
+      setLoading(true)
+      setError('')
+
+      const c = createClient()
+
+      let currentUserId =
+        userId
+
+      if (!currentUserId) {
+
+        const {
+          data: {
+            user,
+          },
+        } =
+          await c.auth.getUser()
+
+        if (!user) {
+          window.location.href =
+            '/login'
+
+          return
+        }
+
+        currentUserId =
+          user.id
+      }
+
+      const {
+        data: {
+          session,
+        },
+      } =
+        await c.auth.getSession()
+
+      if (!session?.access_token) {
+        setError(
+          'Your session has expired. Please log in again.'
+        )
+
+        return
+      }
+
+      const response =
+        await fetch(
+          '/api/admin/data',
+          {
+            method: 'GET',
+
+            headers: {
+              Authorization:
+                `Bearer ${session.access_token}`,
+            },
+
+            cache: 'no-store',
+          }
+        )
+
+      const result =
+        await response.json()
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          'Unable to load admin data.'
+        )
+      }
+
+      setData(result)
+
+    } catch (err: any) {
+
+      console.error(
+        'Admin dashboard error:',
+        err
+      )
+
+      setError(
+        err?.message ||
+        'Unable to load admin data.'
+      )
+
+    } finally {
+
+      setLoading(false)
+    }
+  }
+
+  function openSection(
+    section: Section
+  ) {
+
+    setActiveSection(
+      section
+    )
 
     setTimeout(() => {
-      const id =
-        section === 'reports'
-          ? 'admin-reports'
-          : 'admin-section-details'
 
       document
-        .getElementById(id)
+        .getElementById(
+          'admin-data-section'
+        )
         ?.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
         })
+
     }, 50)
   }
 
-  // UPDATE REPORT
-  async function updateReport(
-    id: string,
-    status: string
+  async function refresh() {
+
+    await loadAdminData()
+  }
+
+  function userName(
+    id: string
   ) {
-    const c = createClient()
 
-    const { error } = await c
-      .from('reports')
-      .update({ status })
-      .eq('id', id)
-
-    if (error) {
-      setMsg(error.message)
-      return
-    }
-
-    setReports((items) =>
-      items.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status,
-            }
-          : item
+    const user =
+      data?.users.find(
+        (item) =>
+          item.id === id
       )
+
+    return (
+      user?.profile
+        ?.display_name ||
+      user?.email ||
+      id
     )
   }
 
-  // LOADING
-  if (loading || allowed === null) {
+  function formatDate(
+    value: string | null
+  ) {
+
+    if (!value)
+      return '—'
+
+    return new Date(
+      value
+    ).toLocaleString()
+  }
+
+  if (
+    loading &&
+    allowed === null
+  ) {
+
     return (
       <main className="admin-page">
+
         <div className="admin-loading">
-          <h2>Checking admin access...</h2>
-          <p>Please wait.</p>
+
+          <div className="loading-icon">
+            ⚙️
+          </div>
+
+          <h2>
+            Checking admin access...
+          </h2>
+
+          <p>
+            Please wait.
+          </p>
+
         </div>
 
-        <style>{`
-          .admin-page {
-            min-height: 100vh;
-            background: #080307;
-            color: white;
-            padding: 20px;
-          }
+        <AdminStyles />
 
-          .admin-loading {
-            max-width: 500px;
-            margin: 120px auto;
-            padding: 30px;
-            text-align: center;
-            border: 1px solid rgba(255,65,150,.45);
-            border-radius: 22px;
-            background: #12050d;
-          }
-        `}</style>
       </main>
     )
   }
 
-  // ACCESS DENIED
   if (!allowed) {
+
     return (
       <main className="admin-page">
+
         <div className="admin-denied">
-          <h1>Access denied</h1>
+
+          <div className="denied-icon">
+            🔒
+          </div>
+
+          <h1>
+            Access denied
+          </h1>
 
           <p>
-            This area is restricted to
-            Mingle-Connect administrators.
+            This area is restricted
+            to Mingle-Connect
+            administrators.
           </p>
 
           <a href="/dashboard">
             Back to dashboard
           </a>
+
         </div>
 
-        <style>{`
-          .admin-page {
-            min-height: 100vh;
-            background: #080307;
-            color: white;
-            padding: 20px;
-          }
+        <AdminStyles />
 
-          .admin-denied {
-            max-width: 500px;
-            margin: 120px auto;
-            padding: 30px;
-            text-align: center;
-            border: 1px solid rgba(255,65,150,.45);
-            border-radius: 22px;
-            background: #12050d;
-          }
-
-          .admin-denied a {
-            color: #ff72ad;
-          }
-        `}</style>
       </main>
     )
   }
 
+  const stats =
+    data?.stats || {
+      users: 0,
+      messages: 0,
+      boosts: 0,
+      activeBoosts: 0,
+      calls: 0,
+      reports: 0,
+      blocks: 0,
+    }
+
   return (
     <main className="admin-page">
 
-      <style>{`
-
-        .admin-page {
-          min-height: 100vh;
-          color: #fff;
-
-          background:
-            radial-gradient(
-              circle at 15% 10%,
-              rgba(255, 0, 110, .18),
-              transparent 30%
-            ),
-            radial-gradient(
-              circle at 90% 35%,
-              rgba(255, 0, 110, .12),
-              transparent 30%
-            ),
-            #080307;
-
-          padding-bottom: 60px;
-        }
-
-        .admin-page * {
-          box-sizing: border-box;
-        }
-
-        .admin-header {
-          min-height: 76px;
-
-          padding: 14px 5%;
-
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-
-          gap: 15px;
-
-          background: rgba(8, 3, 7, .97);
-
-          border-bottom:
-            1px solid rgba(255, 35, 130, .45);
-
-          position: sticky;
-          top: 0;
-
-          z-index: 20;
-        }
-
-        .admin-brand {
-          font-size: 24px;
-          font-weight: 800;
-        }
-
-        .admin-brand span {
-          color: #ff1985;
-        }
-
-        .admin-header-actions {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-
-        .admin-link {
-          color: #fff;
-          text-decoration: none;
-
-          border:
-            1px solid rgba(255, 80, 160, .55);
-
-          border-radius: 20px;
-
-          padding: 8px 14px;
-
-          font-size: 13px;
-
-          background: transparent;
-
-          cursor: pointer;
-        }
-
-        .admin-link:hover {
-          border-color: #ff1985;
-        }
-
-        .admin-main {
-          max-width: 1200px;
-
-          margin: auto;
-
-          padding: 30px 18px;
-        }
-
-        .admin-title h1 {
-          margin: 0;
-
-          font-size: 38px;
-        }
-
-        .admin-title p {
-          color: #cdbfc7;
-
-          margin-top: 8px;
-        }
-
-        /* STATISTICS */
-
-        .admin-stats {
-          display: grid;
-
-          grid-template-columns:
-            repeat(5, 1fr);
-
-          gap: 14px;
-
-          margin:
-            25px 0 35px;
-        }
-
-        .admin-stat {
-          border:
-            1px solid rgba(255, 65, 150, .45);
-
-          border-radius: 20px;
-
-          padding: 20px;
-
-          background:
-            rgba(30, 7, 20, .72);
-
-          box-shadow:
-            0 10px 30px
-            rgba(0, 0, 0, .2);
-        }
-
-        .admin-stat-button {
-          width: 100%;
-
-          text-align: left;
-
-          color: #fff;
-
-          font: inherit;
-
-          cursor: pointer;
-
-          transition:
-            transform .15s ease,
-            border-color .15s ease,
-            background .15s ease;
-        }
-
-        .admin-stat-button:hover,
-        .admin-stat-button:focus-visible {
-          transform:
-            translateY(-2px);
-
-          border-color:
-            #ff1985;
-
-          outline: none;
-        }
-
-        .admin-stat-button.active {
-          border-color:
-            #ff1985;
-
-          background:
-            rgba(255, 25, 133, .12);
-
-          box-shadow:
-            0 0 0 1px
-            rgba(255, 25, 133, .2),
-            0 12px 35px
-            rgba(0, 0, 0, .28);
-        }
-
-        .admin-stat-icon {
-          font-size: 28px;
-        }
-
-        .admin-stat strong {
-          display: block;
-
-          font-size: 30px;
-
-          margin-top: 8px;
-        }
-
-        .admin-stat span {
-          color: #cdbfc7;
-
-          font-size: 13px;
-        }
-
-        /* CLICKABLE SECTION */
-
-        .admin-section-details {
-          scroll-margin-top: 95px;
-
-          margin:
-            0 0 35px;
-
-          padding: 22px;
-
-          border:
-            1px solid
-            rgba(255, 65, 150, .4);
-
-          border-radius: 20px;
-
-          background:
-            rgba(30, 7, 20, .65);
-        }
-
-        .admin-section-details h2 {
-          margin:
-            0 0 8px;
-        }
-
-        .admin-section-details p {
-          color: #cdbfc7;
-
-          line-height: 1.55;
-        }
-
-        .admin-detail-number {
-          font-size: 34px;
-
-          font-weight: 800;
-
-          margin:
-            12px 0 2px;
-        }
-
-        .admin-detail-label {
-          color: #cdbfc7;
-
-          font-size: 13px;
-        }
-
-        .admin-detail-actions {
-          display: flex;
-
-          gap: 10px;
-
-          flex-wrap: wrap;
-
-          margin-top: 18px;
-        }
-
-        .admin-detail-actions button {
-          border:
-            1px solid
-            rgba(255, 65, 150, .55);
-
-          background: #180812;
-
-          color: white;
-
-          border-radius: 18px;
-
-          padding: 9px 14px;
-
-          cursor: pointer;
-        }
-
-        .admin-detail-actions button:hover {
-          border-color:
-            #ff1985;
-        }
-
-        /* NOTICE */
-
-        .admin-notice {
-          padding:
-            13px 15px;
-
-          border:
-            1px solid
-            rgba(255, 80, 160, .5);
-
-          border-radius: 12px;
-
-          margin-bottom: 18px;
-
-          color: #ffb4d5;
-        }
-
-        /* SECTION */
-
-        .admin-section-title {
-          display: flex;
-
-          align-items: center;
-
-          justify-content: space-between;
-
-          gap: 10px;
-
-          margin-bottom: 15px;
-        }
-
-        .admin-section-title h2 {
-          margin: 0;
-        }
-
-        .admin-refresh {
-          border:
-            1px solid #ff1985;
-
-          background: transparent;
-
-          color: white;
-
-          border-radius: 20px;
-
-          padding: 8px 15px;
-
-          cursor: pointer;
-        }
-
-        /* REPORTS */
-
-        .admin-reports {
-          scroll-margin-top: 95px;
-        }
-
-        .report-grid {
-          display: grid;
-
-          gap: 12px;
-        }
-
-        .report-card {
-          border:
-            1px solid
-            rgba(255, 65, 150, .35);
-
-          border-radius: 18px;
-
-          padding: 18px;
-
-          background:
-            rgba(255, 255, 255, .035);
-        }
-
-        .report-top {
-          display: flex;
-
-          justify-content: space-between;
-
-          gap: 12px;
-
-          align-items: flex-start;
-        }
-
-        .report-reason {
-          font-weight: 800;
-        }
-
-        .report-date {
-          color: #a99da5;
-
-          font-size: 12px;
-
-          display: block;
-
-          margin-top: 5px;
-        }
-
-        .report-status {
-          padding:
-            5px 10px;
-
-          border-radius: 15px;
-
-          background:
-            rgba(255, 25, 133, .15);
-
-          color: #ff8fbd;
-
-          font-size: 12px;
-        }
-
-        .report-details {
-          color: #ddd;
-
-          line-height: 1.5;
-        }
-
-        .report-user {
-          color: #aaa;
-
-          font-size: 12px;
-        }
-
-        .admin-btns {
-          display: flex;
-
-          gap: 8px;
-
-          margin-top: 12px;
-
-          flex-wrap: wrap;
-        }
-
-        .admin-btns button {
-          border:
-            1px solid
-            rgba(255, 65, 150, .55);
-
-          background: #180812;
-
-          color: white;
-
-          border-radius: 18px;
-
-          padding: 8px 13px;
-
-          cursor: pointer;
-        }
-
-        .admin-btns button:hover {
-          border-color:
-            #ff1985;
-        }
-
-        /* MOBILE */
-
-        @media (max-width: 850px) {
-
-          .admin-stats {
-            grid-template-columns:
-              repeat(2, 1fr);
-          }
-
-          .admin-stat:last-child {
-            grid-column:
-              span 2;
-          }
-
-        }
-
-        @media (max-width: 520px) {
-
-          .admin-header {
-            align-items:
-              flex-start;
-
-            flex-direction:
-              column;
-          }
-
-          .admin-title h1 {
-            font-size: 31px;
-          }
-
-          .admin-stats {
-            grid-template-columns:
-              1fr 1fr;
-          }
-
-          .admin-stat:last-child {
-            grid-column:
-              span 1;
-          }
-
-          .admin-stat {
-            padding: 15px;
-          }
-
-          .admin-stat strong {
-            font-size: 25px;
-          }
-
-          .report-top {
-            flex-direction:
-              column;
-          }
-
-        }
-
-      `}</style>
+      <AdminStyles />
 
       {/* HEADER */}
 
       <header className="admin-header">
 
-        <div className="admin-brand">
-          Mingle-
-          <span>Connect</span>
-          {' '}Admin
+        <div>
+
+          <div className="admin-brand">
+            Mingle-
+            <span>Connect</span>
+          </div>
+
+          <small>
+            Administrator Control Panel
+          </small>
+
         </div>
 
         <div className="admin-header-actions">
 
           <a
-            className="admin-link"
             href="/dashboard"
+            className="admin-link"
           >
             ← Dashboard
           </a>
 
           <button
             className="admin-link"
+            onClick={refresh}
             type="button"
-            onClick={load}
           >
-            Refresh
+            ↻ Refresh
           </button>
 
         </div>
 
       </header>
 
-      {/* MAIN */}
-
       <div className="admin-main">
+
+        {/* TITLE */}
 
         <section className="admin-title">
 
@@ -823,457 +386,885 @@ export default function Admin() {
           </h1>
 
           <p>
-            Monitor users, boosts, calls,
-            messages and safety reports.
+            Complete Mingle-Connect
+            activity and records.
           </p>
+
+          {data?.generatedAt && (
+            <small>
+              Last updated:{' '}
+              {formatDate(
+                data.generatedAt
+              )}
+            </small>
+          )}
 
         </section>
 
-        {msg && (
-          <div className="admin-notice">
-            {msg}
+        {error && (
+
+          <div className="admin-error">
+            ⚠️ {error}
           </div>
+
         )}
 
-        {/* FIVE CLICKABLE CARDS */}
+        {/* STAT CARDS */}
 
         <section className="admin-stats">
 
-          {/* USERS */}
-
           <button
             type="button"
+            onClick={() =>
+              openSection(
+                'users'
+              )
+            }
             className={
-              `admin-stat admin-stat-button ${
-                activeSection === 'users'
+              `admin-stat ${
+                activeSection ===
+                'users'
                   ? 'active'
                   : ''
               }`
             }
-            onClick={() =>
-              openSection('users')
-            }
           >
-            <div className="admin-stat-icon">
+
+            <span className="stat-icon">
               👥
-            </div>
+            </span>
 
             <strong>
               {stats.users}
             </strong>
 
             <span>
-              Registered users
+              Registered Users
             </span>
-          </button>
 
-          {/* MESSAGES */}
+          </button>
 
           <button
             type="button"
+            onClick={() =>
+              openSection(
+                'messages'
+              )
+            }
             className={
-              `admin-stat admin-stat-button ${
-                activeSection === 'messages'
+              `admin-stat ${
+                activeSection ===
+                'messages'
                   ? 'active'
                   : ''
               }`
             }
-            onClick={() =>
-              openSection('messages')
-            }
           >
-            <div className="admin-stat-icon">
+
+            <span className="stat-icon">
               💬
-            </div>
+            </span>
 
             <strong>
               {stats.messages}
             </strong>
 
             <span>
-              Direct messages
+              Messages
             </span>
-          </button>
 
-          {/* BOOSTS */}
+          </button>
 
           <button
             type="button"
+            onClick={() =>
+              openSection(
+                'boosts'
+              )
+            }
             className={
-              `admin-stat admin-stat-button ${
-                activeSection === 'boosts'
+              `admin-stat ${
+                activeSection ===
+                'boosts'
                   ? 'active'
                   : ''
               }`
             }
-            onClick={() =>
-              openSection('boosts')
-            }
           >
-            <div className="admin-stat-icon">
+
+            <span className="stat-icon">
               🚀
-            </div>
+            </span>
 
             <strong>
-              {stats.activeBoosts}
+              {stats.boosts}
             </strong>
 
             <span>
-              Active boosts
+              All Boosts
             </span>
-          </button>
 
-          {/* CALLS */}
+          </button>
 
           <button
             type="button"
+            onClick={() =>
+              openSection(
+                'calls'
+              )
+            }
             className={
-              `admin-stat admin-stat-button ${
-                activeSection === 'calls'
+              `admin-stat ${
+                activeSection ===
+                'calls'
                   ? 'active'
                   : ''
               }`
             }
-            onClick={() =>
-              openSection('calls')
-            }
           >
-            <div className="admin-stat-icon">
+
+            <span className="stat-icon">
               📞
-            </div>
+            </span>
 
             <strong>
               {stats.calls}
             </strong>
 
             <span>
-              Total calls
+              Calls
             </span>
-          </button>
 
-          {/* REPORTS */}
+          </button>
 
           <button
             type="button"
+            onClick={() =>
+              openSection(
+                'reports'
+              )
+            }
             className={
-              `admin-stat admin-stat-button ${
-                activeSection === 'reports'
+              `admin-stat ${
+                activeSection ===
+                'reports'
                   ? 'active'
                   : ''
               }`
             }
-            onClick={() =>
-              openSection('reports')
-            }
           >
-            <div className="admin-stat-icon">
+
+            <span className="stat-icon">
               🚩
-            </div>
+            </span>
 
             <strong>
               {stats.reports}
             </strong>
 
             <span>
-              Total reports
+              Reports
             </span>
+
           </button>
 
         </section>
 
-        {/* ADMIN DETAIL AREA */}
+        {/* ACTIVE BOOST MINI STAT */}
 
-        {activeSection !== 'reports' && (
+        <div className="active-boost-box">
 
-          <section
-            id="admin-section-details"
-            className="admin-section-details"
-          >
+          🚀 Active boosts:
 
-            {/* USERS */}
+          <strong>
+            {stats.activeBoosts}
+          </strong>
 
-            {activeSection === 'users' && (
-              <>
-                <h2>
-                  👥 User Management
-                </h2>
+          <span>
+            &nbsp; | &nbsp;
+          </span>
 
-                <p>
-                  View the number of registered
-                  Mingle-Connect users and refresh
-                  the latest user count.
-                </p>
+          🚫 Blocks:
 
-                <div className="admin-detail-number">
-                  {stats.users}
-                </div>
+          <strong>
+            {stats.blocks}
+          </strong>
 
-                <div className="admin-detail-label">
-                  Registered users
-                </div>
+        </div>
 
-                <div className="admin-detail-actions">
-
-                  <button
-                    type="button"
-                    onClick={load}
-                  >
-                    ↻ Refresh users
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      window.location.href =
-                        '/dashboard'
-                    }
-                  >
-                    Open Dashboard
-                  </button>
-
-                </div>
-              </>
-            )}
-
-            {/* MESSAGES */}
-
-            {activeSection === 'messages' && (
-              <>
-                <h2>
-                  💬 Messaging Activity
-                </h2>
-
-                <p>
-                  View the total number of direct
-                  messages recorded in the system.
-                </p>
-
-                <div className="admin-detail-number">
-                  {stats.messages}
-                </div>
-
-                <div className="admin-detail-label">
-                  Direct messages
-                </div>
-
-                <div className="admin-detail-actions">
-
-                  <button
-                    type="button"
-                    onClick={load}
-                  >
-                    ↻ Refresh messages
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      window.location.href =
-                        '/messages'
-                    }
-                  >
-                    Open Messages
-                  </button>
-
-                </div>
-              </>
-            )}
-
-            {/* BOOSTS */}
-
-            {activeSection === 'boosts' && (
-              <>
-                <h2>
-                  🚀 Boost Management
-                </h2>
-
-                <p>
-                  View the number of currently
-                  active and unexpired boosts.
-                </p>
-
-                <div className="admin-detail-number">
-                  {stats.activeBoosts}
-                </div>
-
-                <div className="admin-detail-label">
-                  Active boosts
-                </div>
-
-                <div className="admin-detail-actions">
-
-                  <button
-                    type="button"
-                    onClick={load}
-                  >
-                    ↻ Refresh boosts
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      window.location.href =
-                        '/boost'
-                    }
-                  >
-                    Open Boost Page
-                  </button>
-
-                </div>
-              </>
-            )}
-
-            {/* CALLS */}
-
-            {activeSection === 'calls' && (
-              <>
-                <h2>
-                  📞 Call Activity
-                </h2>
-
-                <p>
-                  View the total number of voice
-                  and video call records stored
-                  in Mingle-Connect.
-                </p>
-
-                <div className="admin-detail-number">
-                  {stats.calls}
-                </div>
-
-                <div className="admin-detail-label">
-                  Total calls
-                </div>
-
-                <div className="admin-detail-actions">
-
-                  <button
-                    type="button"
-                    onClick={load}
-                  >
-                    ↻ Refresh calls
-                  </button>
-
-                </div>
-              </>
-            )}
-
-          </section>
-
-        )}
-
-        {/* REPORTS */}
+        {/* DATA */}
 
         <section
-          id="admin-reports"
-          className="admin-reports"
+          id="admin-data-section"
+          className="admin-data-section"
         >
 
-          <div className="admin-section-title">
+          {/* USERS */}
 
-            <h2>
-              Safety Reports
-            </h2>
+          {activeSection ===
+            'users' && (
 
-            <button
-              className="admin-refresh"
-              type="button"
-              onClick={load}
-            >
-              ↻ Refresh data
-            </button>
+            <>
 
-          </div>
+              <div className="section-heading">
 
-          {!reports.length ? (
+                <div>
 
-            <div className="report-card">
-              No reports yet.
-            </div>
+                  <h2>
+                    👥 Registered Users
+                  </h2>
 
-          ) : (
-
-            <div className="report-grid">
-
-              {reports.map((report) => (
-
-                <article
-                  className="report-card"
-                  key={report.id}
-                >
-
-                  <div className="report-top">
-
-                    <div>
-
-                      <div className="report-reason">
-                        {report.reason}
-                      </div>
-
-                      <span className="report-date">
-
-                        {new Date(
-                          report.created_at
-                        ).toLocaleString()}
-
-                      </span>
-
-                    </div>
-
-                    <span className="report-status">
-                      {report.status}
-                    </span>
-
-                  </div>
-
-                  <p className="report-details">
-
-                    {report.details ||
-                      'No additional details.'}
-
+                  <p>
+                    All registered
+                    Mingle-Connect
+                    accounts.
                   </p>
 
-                  <div className="report-user">
+                </div>
 
-                    Reported user:{' '}
+                <button
+                  onClick={refresh}
+                  type="button"
+                >
+                  ↻ Refresh
+                </button>
 
-                    {report.reported_user_id}
+              </div>
 
-                  </div>
+              {!data?.users.length ? (
 
-                  <div className="admin-btns">
+                <div className="empty">
+                  No registered users found.
+                </div>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateReport(
-                          report.id,
-                          'reviewed'
-                        )
-                      }
+              ) : (
+
+                <div className="table-wrap">
+
+                  <table>
+
+                    <thead>
+
+                      <tr>
+                        <th>
+                          User
+                        </th>
+
+                        <th>
+                          Email
+                        </th>
+
+                        <th>
+                          Verified
+                        </th>
+
+                        <th>
+                          Registered
+                        </th>
+
+                        <th>
+                          Last Sign-in
+                        </th>
+                      </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                      {data.users.map(
+                        (user) => (
+
+                        <tr key={user.id}>
+
+                          <td>
+
+                            <strong>
+                              {
+                                user
+                                  .profile
+                                  ?.display_name ||
+                                'No name'
+                              }
+                            </strong>
+
+                            <small>
+                              {user.id}
+                            </small>
+
+                          </td>
+
+                          <td>
+                            {user.email ||
+                              '—'}
+                          </td>
+
+                          <td>
+
+                            {user.emailConfirmed
+                              ? (
+                                <span className="verified">
+                                  ✓ Verified
+                                </span>
+                              )
+                              : (
+                                <span className="not-verified">
+                                  Not verified
+                                </span>
+                              )}
+
+                          </td>
+
+                          <td>
+                            {formatDate(
+                              user.createdAt
+                            )}
+                          </td>
+
+                          <td>
+                            {formatDate(
+                              user.lastSignIn
+                            )}
+                          </td>
+
+                        </tr>
+
+                      ))}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              )}
+
+            </>
+
+          )}
+
+          {/* BOOSTS */}
+
+          {activeSection ===
+            'boosts' && (
+
+            <>
+
+              <div className="section-heading">
+
+                <div>
+
+                  <h2>
+                    🚀 Boost Records
+                  </h2>
+
+                  <p>
+                    Complete boost
+                    history, including
+                    expired and pending
+                    boosts.
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={refresh}
+                  type="button"
+                >
+                  ↻ Refresh
+                </button>
+
+              </div>
+
+              {!data?.boosts.length ? (
+
+                <div className="empty">
+                  No boost records found.
+                </div>
+
+              ) : (
+
+                <div className="table-wrap">
+
+                  <table>
+
+                    <thead>
+
+                      <tr>
+
+                        <th>
+                          User
+                        </th>
+
+                        <th>
+                          Product
+                        </th>
+
+                        <th>
+                          Amount
+                        </th>
+
+                        <th>
+                          Status
+                        </th>
+
+                        <th>
+                          Started
+                        </th>
+
+                        <th>
+                          Expires
+                        </th>
+
+                        <th>
+                          Payment
+                        </th>
+
+                      </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                      {data.boosts.map(
+                        (boost) => (
+
+                        <tr
+                          key={boost.id}
+                        >
+
+                          <td>
+                            {userName(
+                              boost.user_id
+                            )}
+                          </td>
+
+                          <td>
+
+                            {boost.product
+                              ?.name ||
+                              boost.product_id ||
+                              '—'}
+
+                          </td>
+
+                          <td>
+
+                            {boost.amount_kobo !=
+                            null
+                              ? `₦${(
+                                  Number(
+                                    boost.amount_kobo
+                                  ) / 100
+                                ).toLocaleString()}`
+                              : '—'}
+
+                          </td>
+
+                          <td>
+
+                            <span
+                              className={
+                                `status ${
+                                  boost.status
+                                }`
+                              }
+                            >
+                              {boost.status}
+                            </span>
+
+                          </td>
+
+                          <td>
+                            {formatDate(
+                              boost.starts_at
+                            )}
+                          </td>
+
+                          <td>
+                            {formatDate(
+                              boost.expires_at
+                            )}
+                          </td>
+
+                          <td>
+
+                            {boost.payment_reference ||
+                              '—'}
+
+                          </td>
+
+                        </tr>
+
+                      ))}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              )}
+
+            </>
+
+          )}
+
+          {/* MESSAGES */}
+
+          {activeSection ===
+            'messages' && (
+
+            <>
+
+              <div className="section-heading">
+
+                <div>
+
+                  <h2>
+                    💬 Direct Messages
+                  </h2>
+
+                  <p>
+                    Message activity
+                    recorded by the
+                    application.
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={refresh}
+                  type="button"
+                >
+                  ↻ Refresh
+                </button>
+
+              </div>
+
+              {!data?.messages.length ? (
+
+                <div className="empty">
+                  No messages found.
+                </div>
+
+              ) : (
+
+                <div className="table-wrap">
+
+                  <table>
+
+                    <thead>
+
+                      <tr>
+                        <th>
+                          Sender
+                        </th>
+
+                        <th>
+                          Recipient
+                        </th>
+
+                        <th>
+                          Message
+                        </th>
+
+                        <th>
+                          Date
+                        </th>
+                      </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                      {data.messages.map(
+                        (message) => (
+
+                        <tr
+                          key={message.id}
+                        >
+
+                          <td>
+                            {userName(
+                              message.sender_id
+                            )}
+                          </td>
+
+                          <td>
+                            {userName(
+                              message.recipient_id
+                            )}
+                          </td>
+
+                          <td className="message-cell">
+                            {message.message}
+                          </td>
+
+                          <td>
+                            {formatDate(
+                              message.created_at
+                            )}
+                          </td>
+
+                        </tr>
+
+                      ))}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              )}
+
+            </>
+
+          )}
+
+          {/* CALLS */}
+
+          {activeSection ===
+            'calls' && (
+
+            <>
+
+              <div className="section-heading">
+
+                <div>
+
+                  <h2>
+                    📞 Call Records
+                  </h2>
+
+                  <p>
+                    Voice and video call
+                    records.
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={refresh}
+                  type="button"
+                >
+                  ↻ Refresh
+                </button>
+
+              </div>
+
+              {!data?.calls.length ? (
+
+                <div className="empty">
+                  No call records found.
+                </div>
+
+              ) : (
+
+                <div className="table-wrap">
+
+                  <table>
+
+                    <thead>
+
+                      <tr>
+
+                        <th>
+                          Caller
+                        </th>
+
+                        <th>
+                          Receiver
+                        </th>
+
+                        <th>
+                          Type
+                        </th>
+
+                        <th>
+                          Status
+                        </th>
+
+                        <th>
+                          Date
+                        </th>
+
+                      </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                      {data.calls.map(
+                        (call) => (
+
+                        <tr
+                          key={call.id}
+                        >
+
+                          <td>
+                            {userName(
+                              call.caller_id
+                            )}
+                          </td>
+
+                          <td>
+                            {userName(
+                              call.receiver_id
+                            )}
+                          </td>
+
+                          <td>
+                            {call.call_type ||
+                              '—'}
+                          </td>
+
+                          <td>
+
+                            <span
+                              className={
+                                `status ${
+                                  call.status
+                                }`
+                              }
+                            >
+                              {call.status}
+                            </span>
+
+                          </td>
+
+                          <td>
+                            {formatDate(
+                              call.created_at
+                            )}
+                          </td>
+
+                        </tr>
+
+                      ))}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              )}
+
+            </>
+
+          )}
+
+          {/* REPORTS */}
+
+          {activeSection ===
+            'reports' && (
+
+            <>
+
+              <div className="section-heading">
+
+                <div>
+
+                  <h2>
+                    🚩 Safety Reports
+                  </h2>
+
+                  <p>
+                    Reports submitted
+                    by Mingle-Connect
+                    users.
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={refresh}
+                  type="button"
+                >
+                  ↻ Refresh
+                </button>
+
+              </div>
+
+              {!data?.reports.length ? (
+
+                <div className="empty">
+                  No reports found.
+                </div>
+
+              ) : (
+
+                <div className="report-list">
+
+                  {data.reports.map(
+                    (report) => (
+
+                    <article
+                      className="report-card"
+                      key={report.id}
                     >
-                      Mark reviewed
-                    </button>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateReport(
-                          report.id,
-                          'resolved'
-                        )
-                      }
-                    >
-                      Resolve
-                    </button>
+                      <div className="report-top">
 
-                  </div>
+                        <div>
 
-                </article>
+                          <h3>
+                            {report.reason}
+                          </h3>
 
-              ))}
+                          <small>
+                            {formatDate(
+                              report.created_at
+                            )}
+                          </small>
 
-            </div>
+                        </div>
+
+                        <span
+                          className={
+                            `status ${
+                              report.status
+                            }`
+                          }
+                        >
+                          {report.status}
+                        </span>
+
+                      </div>
+
+                      <p>
+                        {report.details ||
+                          'No additional details.'}
+                      </p>
+
+                      <div className="report-users">
+
+                        <span>
+                          Reporter:{' '}
+                          {userName(
+                            report.reporter_id
+                          )}
+                        </span>
+
+                        <span>
+                          Reported:{' '}
+                          {userName(
+                            report.reported_user_id
+                          )}
+                        </span>
+
+                      </div>
+
+                    </article>
+
+                  ))}
+
+                </div>
+
+              )}
+
+            </>
 
           )}
 
@@ -1282,5 +1273,538 @@ export default function Admin() {
       </div>
 
     </main>
+  )
+}
+
+function AdminStyles() {
+
+  return (
+    <style>{`
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .admin-page {
+        min-height: 100vh;
+        color: white;
+
+        background:
+          radial-gradient(
+            circle at 10% 5%,
+            rgba(255,0,110,.18),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 90% 30%,
+            rgba(255,0,110,.12),
+            transparent 30%
+          ),
+          #080307;
+
+        padding-bottom: 70px;
+      }
+
+      .admin-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+
+        min-height: 76px;
+
+        padding: 14px 5%;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        background:
+          rgba(8,3,7,.97);
+
+        border-bottom:
+          1px solid
+          rgba(255,35,130,.45);
+      }
+
+      .admin-brand {
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .admin-brand span {
+        color: #ff1985;
+      }
+
+      .admin-header small {
+        color: #bcaeb7;
+      }
+
+      .admin-header-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .admin-link {
+        color: white;
+        text-decoration: none;
+
+        border:
+          1px solid
+          rgba(255,80,160,.55);
+
+        border-radius: 20px;
+
+        padding:
+          8px 14px;
+
+        background: transparent;
+
+        cursor: pointer;
+      }
+
+      .admin-main {
+        max-width: 1250px;
+        margin: auto;
+
+        padding:
+          30px 18px;
+      }
+
+      .admin-title h1 {
+        margin: 0;
+        font-size: 38px;
+      }
+
+      .admin-title p {
+        color: #cdbfc7;
+        margin: 8px 0;
+      }
+
+      .admin-title small {
+        color: #8f818b;
+      }
+
+      .admin-error {
+        margin:
+          20px 0;
+
+        padding: 14px;
+
+        border:
+          1px solid
+          rgba(255,80,80,.5);
+
+        border-radius: 12px;
+
+        color: #ffb0b0;
+
+        background:
+          rgba(100,0,0,.15);
+      }
+
+      .admin-stats {
+        display: grid;
+
+        grid-template-columns:
+          repeat(5, 1fr);
+
+        gap: 14px;
+
+        margin:
+          25px 0 18px;
+      }
+
+      .admin-stat {
+        appearance: none;
+
+        border:
+          1px solid
+          rgba(255,65,150,.45);
+
+        border-radius: 20px;
+
+        padding: 20px;
+
+        color: white;
+
+        text-align: left;
+
+        background:
+          rgba(30,7,20,.72);
+
+        cursor: pointer;
+
+        transition:
+          transform .15s ease,
+          border-color .15s ease;
+      }
+
+      .admin-stat:hover,
+      .admin-stat.active {
+        transform:
+          translateY(-2px);
+
+        border-color:
+          #ff1985;
+
+        background:
+          rgba(255,25,133,.12);
+      }
+
+      .stat-icon {
+        display: block;
+        font-size: 28px;
+      }
+
+      .admin-stat strong {
+        display: block;
+
+        font-size: 30px;
+
+        margin-top: 8px;
+      }
+
+      .admin-stat > span:last-child {
+        color: #cdbfc7;
+
+        font-size: 13px;
+      }
+
+      .active-boost-box {
+        margin:
+          0 0 30px;
+
+        padding:
+          14px 17px;
+
+        border:
+          1px solid
+          rgba(255,65,150,.3);
+
+        border-radius: 14px;
+
+        color: #cdbfc7;
+      }
+
+      .active-boost-box strong {
+        color: #ff72ad;
+      }
+
+      .admin-data-section {
+        scroll-margin-top: 100px;
+      }
+
+      .section-heading {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 18px;
+      }
+
+      .section-heading h2 {
+        margin: 0;
+      }
+
+      .section-heading p {
+        color: #bcaeb7;
+      }
+
+      .section-heading button {
+        color: white;
+
+        border:
+          1px solid #ff1985;
+
+        background:
+          transparent;
+
+        border-radius: 20px;
+
+        padding:
+          8px 15px;
+
+        cursor: pointer;
+      }
+
+      .table-wrap {
+        width: 100%;
+
+        overflow-x: auto;
+
+        border:
+          1px solid
+          rgba(255,65,150,.3);
+
+        border-radius: 18px;
+
+        background:
+          rgba(20,5,14,.72);
+      }
+
+      table {
+        width: 100%;
+
+        min-width: 750px;
+
+        border-collapse:
+          collapse;
+      }
+
+      th,
+      td {
+        padding:
+          14px;
+
+        text-align: left;
+
+        border-bottom:
+          1px solid
+          rgba(255,255,255,.06);
+
+        vertical-align: top;
+      }
+
+      th {
+        color: #ff8fbd;
+
+        font-size: 13px;
+
+        white-space: nowrap;
+
+        background:
+          rgba(255,25,133,.08);
+      }
+
+      td {
+        color: #e8e0e5;
+
+        font-size: 13px;
+      }
+
+      td strong {
+        display: block;
+      }
+
+      td small {
+        display: block;
+
+        color: #777;
+
+        margin-top: 4px;
+
+        max-width: 170px;
+
+        overflow:
+          hidden;
+
+        text-overflow:
+          ellipsis;
+      }
+
+      .message-cell {
+        max-width: 350px;
+
+        white-space:
+          normal;
+
+        word-break:
+          break-word;
+      }
+
+      .verified {
+        color: #76e6a2;
+      }
+
+      .not-verified {
+        color: #ffb36b;
+      }
+
+      .status {
+        display: inline-block;
+
+        padding:
+          5px 10px;
+
+        border-radius: 14px;
+
+        font-size: 12px;
+
+        background:
+          rgba(255,255,255,.08);
+      }
+
+      .status.active,
+      .status.resolved {
+        color: #79e5a2;
+      }
+
+      .status.pending,
+      .status.ringing {
+        color: #ffd16b;
+      }
+
+      .status.reviewed {
+        color: #78cfff;
+      }
+
+      .status.expired,
+      .status.ended,
+      .status.cancelled {
+        color: #aaa;
+      }
+
+      .empty {
+        padding: 40px 20px;
+
+        text-align: center;
+
+        border:
+          1px solid
+          rgba(255,65,150,.3);
+
+        border-radius: 18px;
+
+        color: #bcaeb7;
+      }
+
+      .report-list {
+        display: grid;
+        gap: 13px;
+      }
+
+      .report-card {
+        padding: 18px;
+
+        border:
+          1px solid
+          rgba(255,65,150,.3);
+
+        border-radius: 18px;
+
+        background:
+          rgba(255,255,255,.035);
+      }
+
+      .report-top {
+        display: flex;
+
+        align-items: flex-start;
+
+        justify-content: space-between;
+
+        gap: 15px;
+      }
+
+      .report-top h3 {
+        margin:
+          0 0 5px;
+      }
+
+      .report-top small {
+        color: #8f818b;
+      }
+
+      .report-card p {
+        color: #ddd;
+
+        line-height: 1.5;
+      }
+
+      .report-users {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 5px;
+
+        color: #aaa;
+
+        font-size: 12px;
+      }
+
+      .admin-loading,
+      .admin-denied {
+        max-width: 500px;
+
+        margin: 120px auto;
+
+        padding: 35px;
+
+        text-align: center;
+
+        border:
+          1px solid
+          rgba(255,65,150,.45);
+
+        border-radius: 22px;
+
+        background:
+          #12050d;
+      }
+
+      .loading-icon,
+      .denied-icon {
+        font-size: 40px;
+      }
+
+      .admin-denied a {
+        color: #ff72ad;
+      }
+
+      @media (max-width: 900px) {
+
+        .admin-stats {
+          grid-template-columns:
+            repeat(2,1fr);
+        }
+
+      }
+
+      @media (max-width: 550px) {
+
+        .admin-header {
+          align-items:
+            flex-start;
+
+          flex-direction:
+            column;
+        }
+
+        .admin-title h1 {
+          font-size: 30px;
+        }
+
+        .admin-stats {
+          grid-template-columns:
+            1fr 1fr;
+        }
+
+        .admin-stat {
+          padding: 15px;
+        }
+
+        .admin-stat strong {
+          font-size: 25px;
+        }
+
+        .section-heading {
+          align-items:
+            flex-start;
+
+          flex-direction:
+            column;
+        }
+
+      }
+
+    `}</style>
   )
 }
