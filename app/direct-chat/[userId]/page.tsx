@@ -988,62 +988,66 @@ export default function DirectChat() {
     }}
   >
     <button
-      type="button"
-      onClick={() => startCall('voice')}
-      disabled={callStatus !== 'idle'}
-      style={{
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  visibility: 'visible',
-  opacity: 1,
-  width: '44px',
-        
-        height: '44px',
-        borderRadius: '50%',
-        border: 'none',
-        background: '#f7c4e6',
-        color: '#9b1670',
-        fontSize: '21px',
-        cursor: 'pointer',
-      }}
-      aria-label="Voice call"
-    >
-      📞
-    </button>
+  type="button"
+  onClick={() => startCall('voice')}
+  disabled={callStatus !== 'idle'}
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    visibility: 'visible',
+    opacity: 1,
+    width: '44px',
+    height: '44px',
+    minWidth: '44px',
+    borderRadius: '50%',
+    border: 'none',
+    background: '#f7c4e6',
+    color: '#9b1670',
+    fontSize: '21px',
+    cursor: callStatus === 'idle' ? 'pointer' : 'not-allowed',
+    flexShrink: 0,
+  }}
+  aria-label="Voice call"
+>
+  📞
+</button>
 
-    <button
-      type="button"
-      onClick={() => startCall('video')}
-      disabled={callStatus !== 'idle'}
-      style={{
-        display: 'flex',
-alignItems: 'center',
-justifyContent: 'center',
-visibility: 'visible',
-opacity: 1,
-        width: '44px',
-        height: '44px',
-        borderRadius: '50%',
-        border: 'none',
-        background: '#f7c4e6',
-        color: '#9b1670',
-        fontSize: '21px',
-        cursor: 'pointer',
-      }}
-      aria-label="Video call"
-    >
-      📹
-    </button>
+<button
+  type="button"
+  onClick={() => startCall('video')}
+  disabled={callStatus !== 'idle'}
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    visibility: 'visible',
+    opacity: 1,
+    width: '44px',
+    height: '44px',
+    minWidth: '44px',
+    borderRadius: '50%',
+    border: 'none',
+    background: '#f7c4e6',
+    color: '#9b1670',
+    fontSize: '21px',
+    cursor: callStatus === 'idle' ? 'pointer' : 'not-allowed',
+    flexShrink: 0,
+  }}
+  aria-label="Video call"
+>
+  📹
+</button>
 
-    <span
-      style={{
-        fontSize: '28px',
-        marginLeft: '4px',
-      }}
-    >
-      ❤️
-    </span>
+<span
+  style={{
+    fontSize: '28px',
+    marginLeft: '4px',
+    flexShrink: 0,
+  }}
+>
+  ❤️
+</span>
   </div>
 </header>
       {/* =====================================================
