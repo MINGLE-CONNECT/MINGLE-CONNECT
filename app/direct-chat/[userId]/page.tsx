@@ -992,6 +992,12 @@ export default function DirectChat() {
       onClick={() => startCall('voice')}
       disabled={callStatus !== 'idle'}
       style={{
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  visibility: 'visible',
+  opacity: 1,
+  width: '44px',
         width: '44px',
         height: '44px',
         borderRadius: '50%',
