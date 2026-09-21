@@ -57,6 +57,17 @@ export default function Admin() {
     checkAdmin()
   }, [])
 
+useEffect(() => {
+  if (!allowed) return
+
+  const liveUpdate = setInterval(() => {
+    loadAdminData()
+  }, 15000)
+
+  return () => {
+    clearInterval(liveUpdate)
+  }
+}, [allowed])
   async function checkAdmin() {
 
     const c = createClient()
