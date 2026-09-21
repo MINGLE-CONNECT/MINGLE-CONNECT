@@ -480,23 +480,21 @@ async function declineCall() {
   }, [messages])
 
   async function loadMessages(currentUserId: string) {
-    const { data, error } = await c
-      .from('direct_messages')
-      .select(
-        'id,sender_id,recipient_id,message,created_at'
-      )
-      .or(
-        `and(sender_id.eq.${currentUserId},recipient_id.eq.${userId}),and(sender_id.eq.${userId},recipient_id.eq.${currentUserId})`
-      )
-      .order('created_at', { ascending: true })
+  const { data, error } = await c
+    .from('direct_messages')
+    .select('id,sender_id,recipient_id,message,created_at')
+    .or(
+      `and(sender_id.eq.${currentUserId},recipient_id.eq.${userId}),and(sender_id.eq.${userId},recipient_id.eq.${currentUserId})`
+    )
+    .order('created_at', { ascending: true })
 
-    if (error) {
-      setError(error.message)
-      return
-    }
-
-    setMessages(data || [])
+  if (error) {
+    setError(error.message)
+    return
   }
+
+  setMessages(data || [])
+}
 
 
   async function sendMessage() {
