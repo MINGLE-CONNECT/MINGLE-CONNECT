@@ -497,13 +497,7 @@ async function declineCall() {
 
     setMessages(data || [])
   }
-    if (error) {
-      setError(error.message)
-      return
-    }
 
-    setMessages(data || [])
-  }
 
   async function sendMessage() {
     const body = text.trim()
