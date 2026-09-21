@@ -647,7 +647,9 @@ export default function DirectChat() {
             }
           }
         )
-        .subscribe()
+        .subscribe((status) => {
+  console.log('DIRECT MESSAGE REALTIME STATUS:', status)
+})
 
       setLoading(false)
     }
