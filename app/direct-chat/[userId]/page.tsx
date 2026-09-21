@@ -983,12 +983,14 @@ export default function DirectChat() {
   </div>
 
   <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-    }}
-  >
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    flexShrink: 0,
+    marginLeft: '4px',
+  }}
+>
     <button
   type="button"
   onClick={() => startCall('voice')}
