@@ -21,9 +21,17 @@ type Stats = {
   reports: number
 }
 
+type Section =
+  | 'users'
+  | 'messages'
+  | 'boosts'
+  | 'calls'
+  | 'reports'
+
 export default function Admin() {
   const [allowed, setAllowed] = useState<boolean | null>(null)
   const [reports, setReports] = useState<Report[]>([])
+
   const [stats, setStats] = useState<Stats>({
     users: 0,
     messages: 0,
@@ -35,12 +43,18 @@ export default function Admin() {
   const [msg, setMsg] = useState('')
   const [loading, setLoading] = useState(true)
 
+  const [activeSection, setActiveSection] =
+    useState<Section>('users')
+
   useEffect(() => {
     load()
   }, [])
 
   async function load() {
     const c = createClient()
+
+    setLoading(true)
+    setMsg('')
 
     const {
       data: { user },
@@ -52,11 +66,18 @@ export default function Admin() {
     }
 
     // CHECK ADMIN ACCESS
-    const { data: admin } = await c
+    const { data: admin, error: adminError } = await c
       .from('admin_users')
       .select('user_id')
       .eq('user_id', user.id)
       .maybeSingle()
+
+    if (adminError) {
+      setMsg(adminError.message)
+      setAllowed(false)
+      setLoading(false)
+      return
+    }
 
     if (!admin) {
       setAllowed(false)
@@ -79,35 +100,61 @@ export default function Admin() {
     ] = await Promise.all([
       c
         .from('profiles')
-        .select('id', { count: 'exact', head: true }),
+        .select('id', {
+          count: 'exact',
+          head: true,
+        }),
 
       c
         .from('direct_messages')
-        .select('id', { count: 'exact', head: true }),
+        .select('id', {
+          count: 'exact',
+          head: true,
+        }),
 
       c
         .from('boosts')
-        .select('id', { count: 'exact', head: true })
+        .select('id', {
+          count: 'exact',
+          head: true,
+        })
         .eq('status', 'active')
         .gt('expires_at', now),
 
       c
         .from('calls')
-        .select('id', { count: 'exact', head: true }),
+        .select('id', {
+          count: 'exact',
+          head: true,
+        }),
 
       c
         .from('reports')
-        .select('id', { count: 'exact', head: true }),
+        .select('id', {
+          count: 'exact',
+          head: true,
+        }),
 
       c
         .from('reports')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('created_at', {
+          ascending: false,
+        })
         .limit(20),
     ])
 
-    if (reportsResult.error) {
-      setMsg(reportsResult.error.message)
+    const errors = [
+      usersResult.error,
+      messagesResult.error,
+      boostsResult.error,
+      callsResult.error,
+      reportsCountResult.error,
+      reportsResult.error,
+    ].filter(Boolean)
+
+    if (errors.length > 0) {
+      setMsg(errors[0]?.message || 'Unable to load some admin data.')
     }
 
     setStats({
@@ -118,14 +165,39 @@ export default function Admin() {
       reports: reportsCountResult.count || 0,
     })
 
-    setReports((reportsResult.data || []) as Report[])
+    setReports(
+      (reportsResult.data || []) as Report[]
+    )
 
     setLoading(false)
   }
 
+  function openSection(section: Section) {
+    setActiveSection(section)
+
+    setTimeout(() => {
+      const id =
+        section === 'reports'
+          ? 'admin-reports'
+          : 'admin-section-details'
+
+      document
+        .getElementById(id)
+        ?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+    }, 50)
+  }
+
   // UPDATE REPORT
-  async function updateReport(id: string, status: string) {
-    const { error } = await createClient()
+  async function updateReport(
+    id: string,
+    status: string
+  ) {
+    const c = createClient()
+
+    const { error } = await c
       .from('reports')
       .update({ status })
       .eq('id', id)
@@ -138,7 +210,10 @@ export default function Admin() {
     setReports((items) =>
       items.map((item) =>
         item.id === id
-          ? { ...item, status }
+          ? {
+              ...item,
+              status,
+            }
           : item
       )
     )
@@ -152,6 +227,25 @@ export default function Admin() {
           <h2>Checking admin access...</h2>
           <p>Please wait.</p>
         </div>
+
+        <style>{`
+          .admin-page {
+            min-height: 100vh;
+            background: #080307;
+            color: white;
+            padding: 20px;
+          }
+
+          .admin-loading {
+            max-width: 500px;
+            margin: 120px auto;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255,65,150,.45);
+            border-radius: 22px;
+            background: #12050d;
+          }
+        `}</style>
       </main>
     )
   }
@@ -164,13 +258,37 @@ export default function Admin() {
           <h1>Access denied</h1>
 
           <p>
-            This area is restricted to Mingle-Connect administrators.
+            This area is restricted to
+            Mingle-Connect administrators.
           </p>
 
           <a href="/dashboard">
             Back to dashboard
           </a>
         </div>
+
+        <style>{`
+          .admin-page {
+            min-height: 100vh;
+            background: #080307;
+            color: white;
+            padding: 20px;
+          }
+
+          .admin-denied {
+            max-width: 500px;
+            margin: 120px auto;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255,65,150,.45);
+            border-radius: 22px;
+            background: #12050d;
+          }
+
+          .admin-denied a {
+            color: #ff72ad;
+          }
+        `}</style>
       </main>
     )
   }
@@ -179,6 +297,7 @@ export default function Admin() {
     <main className="admin-page">
 
       <style>{`
+
         .admin-page {
           min-height: 100vh;
           color: #fff;
@@ -254,6 +373,8 @@ export default function Admin() {
           font-size: 13px;
 
           background: transparent;
+
+          cursor: pointer;
         }
 
         .admin-link:hover {
@@ -310,6 +431,48 @@ export default function Admin() {
             rgba(0, 0, 0, .2);
         }
 
+        .admin-stat-button {
+          width: 100%;
+
+          text-align: left;
+
+          color: #fff;
+
+          font: inherit;
+
+          cursor: pointer;
+
+          transition:
+            transform .15s ease,
+            border-color .15s ease,
+            background .15s ease;
+        }
+
+        .admin-stat-button:hover,
+        .admin-stat-button:focus-visible {
+          transform:
+            translateY(-2px);
+
+          border-color:
+            #ff1985;
+
+          outline: none;
+        }
+
+        .admin-stat-button.active {
+          border-color:
+            #ff1985;
+
+          background:
+            rgba(255, 25, 133, .12);
+
+          box-shadow:
+            0 0 0 1px
+            rgba(255, 25, 133, .2),
+            0 12px 35px
+            rgba(0, 0, 0, .28);
+        }
+
         .admin-stat-icon {
           font-size: 28px;
         }
@@ -328,10 +491,88 @@ export default function Admin() {
           font-size: 13px;
         }
 
+        /* CLICKABLE SECTION */
+
+        .admin-section-details {
+          scroll-margin-top: 95px;
+
+          margin:
+            0 0 35px;
+
+          padding: 22px;
+
+          border:
+            1px solid
+            rgba(255, 65, 150, .4);
+
+          border-radius: 20px;
+
+          background:
+            rgba(30, 7, 20, .65);
+        }
+
+        .admin-section-details h2 {
+          margin:
+            0 0 8px;
+        }
+
+        .admin-section-details p {
+          color: #cdbfc7;
+
+          line-height: 1.55;
+        }
+
+        .admin-detail-number {
+          font-size: 34px;
+
+          font-weight: 800;
+
+          margin:
+            12px 0 2px;
+        }
+
+        .admin-detail-label {
+          color: #cdbfc7;
+
+          font-size: 13px;
+        }
+
+        .admin-detail-actions {
+          display: flex;
+
+          gap: 10px;
+
+          flex-wrap: wrap;
+
+          margin-top: 18px;
+        }
+
+        .admin-detail-actions button {
+          border:
+            1px solid
+            rgba(255, 65, 150, .55);
+
+          background: #180812;
+
+          color: white;
+
+          border-radius: 18px;
+
+          padding: 9px 14px;
+
+          cursor: pointer;
+        }
+
+        .admin-detail-actions button:hover {
+          border-color:
+            #ff1985;
+        }
+
         /* NOTICE */
 
         .admin-notice {
-          padding: 13px 15px;
+          padding:
+            13px 15px;
 
           border:
             1px solid
@@ -378,6 +619,10 @@ export default function Admin() {
         }
 
         /* REPORTS */
+
+        .admin-reports {
+          scroll-margin-top: 95px;
+        }
 
         .report-grid {
           display: grid;
@@ -475,32 +720,8 @@ export default function Admin() {
         }
 
         .admin-btns button:hover {
-          border-color: #ff1985;
-        }
-
-        /* LOADING / DENIED */
-
-        .admin-loading,
-        .admin-denied {
-          max-width: 500px;
-
-          margin: 120px auto;
-
-          padding: 30px;
-
-          text-align: center;
-
-          border:
-            1px solid
-            rgba(255, 65, 150, .45);
-
-          border-radius: 22px;
-
-          background: #12050d;
-        }
-
-        .admin-denied a {
-          color: #ff72ad;
+          border-color:
+            #ff1985;
         }
 
         /* MOBILE */
@@ -516,14 +737,17 @@ export default function Admin() {
             grid-column:
               span 2;
           }
+
         }
 
         @media (max-width: 520px) {
 
           .admin-header {
-            align-items: flex-start;
+            align-items:
+              flex-start;
 
-            flex-direction: column;
+            flex-direction:
+              column;
           }
 
           .admin-title h1 {
@@ -549,9 +773,12 @@ export default function Admin() {
           }
 
           .report-top {
-            flex-direction: column;
+            flex-direction:
+              column;
           }
+
         }
+
       `}</style>
 
       {/* HEADER */}
@@ -559,7 +786,9 @@ export default function Admin() {
       <header className="admin-header">
 
         <div className="admin-brand">
-          Mingle-<span>Connect</span> Admin
+          Mingle-
+          <span>Connect</span>
+          {' '}Admin
         </div>
 
         <div className="admin-header-actions">
@@ -573,6 +802,7 @@ export default function Admin() {
 
           <button
             className="admin-link"
+            type="button"
             onClick={load}
           >
             Refresh
@@ -605,11 +835,25 @@ export default function Admin() {
           </div>
         )}
 
-        {/* STATISTICS */}
+        {/* FIVE CLICKABLE CARDS */}
 
         <section className="admin-stats">
 
-          <div className="admin-stat">
+          {/* USERS */}
+
+          <button
+            type="button"
+            className={
+              `admin-stat admin-stat-button ${
+                activeSection === 'users'
+                  ? 'active'
+                  : ''
+              }`
+            }
+            onClick={() =>
+              openSection('users')
+            }
+          >
             <div className="admin-stat-icon">
               👥
             </div>
@@ -621,9 +865,23 @@ export default function Admin() {
             <span>
               Registered users
             </span>
-          </div>
+          </button>
 
-          <div className="admin-stat">
+          {/* MESSAGES */}
+
+          <button
+            type="button"
+            className={
+              `admin-stat admin-stat-button ${
+                activeSection === 'messages'
+                  ? 'active'
+                  : ''
+              }`
+            }
+            onClick={() =>
+              openSection('messages')
+            }
+          >
             <div className="admin-stat-icon">
               💬
             </div>
@@ -635,9 +893,23 @@ export default function Admin() {
             <span>
               Direct messages
             </span>
-          </div>
+          </button>
 
-          <div className="admin-stat">
+          {/* BOOSTS */}
+
+          <button
+            type="button"
+            className={
+              `admin-stat admin-stat-button ${
+                activeSection === 'boosts'
+                  ? 'active'
+                  : ''
+              }`
+            }
+            onClick={() =>
+              openSection('boosts')
+            }
+          >
             <div className="admin-stat-icon">
               🚀
             </div>
@@ -649,9 +921,23 @@ export default function Admin() {
             <span>
               Active boosts
             </span>
-          </div>
+          </button>
 
-          <div className="admin-stat">
+          {/* CALLS */}
+
+          <button
+            type="button"
+            className={
+              `admin-stat admin-stat-button ${
+                activeSection === 'calls'
+                  ? 'active'
+                  : ''
+              }`
+            }
+            onClick={() =>
+              openSection('calls')
+            }
+          >
             <div className="admin-stat-icon">
               📞
             </div>
@@ -663,9 +949,23 @@ export default function Admin() {
             <span>
               Total calls
             </span>
-          </div>
+          </button>
 
-          <div className="admin-stat">
+          {/* REPORTS */}
+
+          <button
+            type="button"
+            className={
+              `admin-stat admin-stat-button ${
+                activeSection === 'reports'
+                  ? 'active'
+                  : ''
+              }`
+            }
+            onClick={() =>
+              openSection('reports')
+            }
+          >
             <div className="admin-stat-icon">
               🚩
             </div>
@@ -677,13 +977,197 @@ export default function Admin() {
             <span>
               Total reports
             </span>
-          </div>
+          </button>
 
         </section>
 
+        {/* ADMIN DETAIL AREA */}
+
+        {activeSection !== 'reports' && (
+
+          <section
+            id="admin-section-details"
+            className="admin-section-details"
+          >
+
+            {/* USERS */}
+
+            {activeSection === 'users' && (
+              <>
+                <h2>
+                  👥 User Management
+                </h2>
+
+                <p>
+                  View the number of registered
+                  Mingle-Connect users and refresh
+                  the latest user count.
+                </p>
+
+                <div className="admin-detail-number">
+                  {stats.users}
+                </div>
+
+                <div className="admin-detail-label">
+                  Registered users
+                </div>
+
+                <div className="admin-detail-actions">
+
+                  <button
+                    type="button"
+                    onClick={load}
+                  >
+                    ↻ Refresh users
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.location.href =
+                        '/dashboard'
+                    }
+                  >
+                    Open Dashboard
+                  </button>
+
+                </div>
+              </>
+            )}
+
+            {/* MESSAGES */}
+
+            {activeSection === 'messages' && (
+              <>
+                <h2>
+                  💬 Messaging Activity
+                </h2>
+
+                <p>
+                  View the total number of direct
+                  messages recorded in the system.
+                </p>
+
+                <div className="admin-detail-number">
+                  {stats.messages}
+                </div>
+
+                <div className="admin-detail-label">
+                  Direct messages
+                </div>
+
+                <div className="admin-detail-actions">
+
+                  <button
+                    type="button"
+                    onClick={load}
+                  >
+                    ↻ Refresh messages
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.location.href =
+                        '/messages'
+                    }
+                  >
+                    Open Messages
+                  </button>
+
+                </div>
+              </>
+            )}
+
+            {/* BOOSTS */}
+
+            {activeSection === 'boosts' && (
+              <>
+                <h2>
+                  🚀 Boost Management
+                </h2>
+
+                <p>
+                  View the number of currently
+                  active and unexpired boosts.
+                </p>
+
+                <div className="admin-detail-number">
+                  {stats.activeBoosts}
+                </div>
+
+                <div className="admin-detail-label">
+                  Active boosts
+                </div>
+
+                <div className="admin-detail-actions">
+
+                  <button
+                    type="button"
+                    onClick={load}
+                  >
+                    ↻ Refresh boosts
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.location.href =
+                        '/boost'
+                    }
+                  >
+                    Open Boost Page
+                  </button>
+
+                </div>
+              </>
+            )}
+
+            {/* CALLS */}
+
+            {activeSection === 'calls' && (
+              <>
+                <h2>
+                  📞 Call Activity
+                </h2>
+
+                <p>
+                  View the total number of voice
+                  and video call records stored
+                  in Mingle-Connect.
+                </p>
+
+                <div className="admin-detail-number">
+                  {stats.calls}
+                </div>
+
+                <div className="admin-detail-label">
+                  Total calls
+                </div>
+
+                <div className="admin-detail-actions">
+
+                  <button
+                    type="button"
+                    onClick={load}
+                  >
+                    ↻ Refresh calls
+                  </button>
+
+                </div>
+              </>
+            )}
+
+          </section>
+
+        )}
+
         {/* REPORTS */}
 
-        <section>
+        <section
+          id="admin-reports"
+          className="admin-reports"
+        >
 
           <div className="admin-section-title">
 
@@ -693,6 +1177,7 @@ export default function Admin() {
 
             <button
               className="admin-refresh"
+              type="button"
               onClick={load}
             >
               ↻ Refresh data
@@ -726,9 +1211,11 @@ export default function Admin() {
                       </div>
 
                       <span className="report-date">
+
                         {new Date(
                           report.created_at
                         ).toLocaleString()}
+
                       </span>
 
                     </div>
@@ -740,18 +1227,24 @@ export default function Admin() {
                   </div>
 
                   <p className="report-details">
+
                     {report.details ||
                       'No additional details.'}
+
                   </p>
 
                   <div className="report-user">
+
                     Reported user:{' '}
+
                     {report.reported_user_id}
+
                   </div>
 
                   <div className="admin-btns">
 
                     <button
+                      type="button"
                       onClick={() =>
                         updateReport(
                           report.id,
@@ -763,6 +1256,7 @@ export default function Admin() {
                     </button>
 
                     <button
+                      type="button"
                       onClick={() =>
                         updateReport(
                           report.id,
