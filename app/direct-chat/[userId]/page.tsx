@@ -922,58 +922,119 @@ export default function DirectChat() {
           HEADER
           ===================================================== */}
 
-      <header className="direct-chat-header">
+      <header
+  className="direct-chat-header"
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '14px 16px',
+    background: '#ffffff',
+    borderBottom: '1px solid #f0dce8',
+  }}
+>
+  <a
+    href="/discover"
+    className="direct-chat-back"
+    style={{
+      width: '48px',
+      height: '48px',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#fff0f7',
+      color: '#c92b91',
+      textDecoration: 'none',
+      fontSize: '26px',
+      fontWeight: 'bold',
+    }}
+  >
+    ←
+  </a>
 
-        <a
-          href="/discover"
-          className="direct-chat-back"
-        >
-          ←
-        </a>
+  <div
+    style={{
+      flex: 1,
+      marginLeft: '12px',
+    }}
+  >
+    <strong
+      style={{
+        display: 'block',
+        fontSize: '20px',
+        color: '#281522',
+      }}
+    >
+      {person?.display_name || 'Mingle Member'}
+    </strong>
 
-        <div>
-          <strong>
-            {person?.display_name ||
-              'Mingle Member'}
-          </strong>
+    <small
+      style={{
+        display: 'block',
+        color: '#888',
+        marginTop: '3px',
+      }}
+    >
+      Private conversation
+    </small>
+  </div>
 
-          <small>
-            Direct Message
-          </small>
-        </div>
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    }}
+  >
+    <button
+      type="button"
+      onClick={() => startCall('voice')}
+      disabled={callStatus !== 'idle'}
+      style={{
+        width: '44px',
+        height: '44px',
+        borderRadius: '50%',
+        border: 'none',
+        background: '#f7c4e6',
+        color: '#9b1670',
+        fontSize: '21px',
+        cursor: 'pointer',
+      }}
+      aria-label="Voice call"
+    >
+      📞
+    </button>
 
-        <div className="direct-chat-call-buttons">
+    <button
+      type="button"
+      onClick={() => startCall('video')}
+      disabled={callStatus !== 'idle'}
+      style={{
+        width: '44px',
+        height: '44px',
+        borderRadius: '50%',
+        border: 'none',
+        background: '#f7c4e6',
+        color: '#9b1670',
+        fontSize: '21px',
+        cursor: 'pointer',
+      }}
+      aria-label="Video call"
+    >
+      📹
+    </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              startCall('voice')
-            }
-            disabled={
-              callStatus !== 'idle'
-            }
-            aria-label="Voice call"
-          >
-            📞
-          </button>
-
-          <button
-            type="button"
-            onClick={() =>
-              startCall('video')
-            }
-            disabled={
-              callStatus !== 'idle'
-            }
-            aria-label="Video call"
-          >
-            📹
-          </button>
-
-        </div>
-
-      </header>
-
+    <span
+      style={{
+        fontSize: '28px',
+        marginLeft: '4px',
+      }}
+    >
+      ❤️
+    </span>
+  </div>
+</header>
       {/* =====================================================
           MESSAGES
           ===================================================== */}
