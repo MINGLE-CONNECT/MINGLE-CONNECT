@@ -15,7 +15,10 @@ type Section =
   | 'reports'
 
 type AdminData = {
+  generatedAt: string
+
   stats: {
+ 
     users: number
     messages: number
     boosts: number
