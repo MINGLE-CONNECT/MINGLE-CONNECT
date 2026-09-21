@@ -1052,9 +1052,16 @@ export default function DirectChat() {
     📹
   </button>
 </div>
+
+<span
+  style={{
+    fontSize: '28px',
+    marginLeft: '4px',
+    flexShrink: 0,
+  }}
+>
   ❤️
 </span>
-  </div>
 </header>
       {/* =====================================================
           MESSAGES
