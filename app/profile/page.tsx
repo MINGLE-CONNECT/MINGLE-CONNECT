@@ -260,7 +260,18 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
     await loadPhotos(uid)
   }
 
-  function photoUrl(path: string) {
+  
+function photoUrl(path: string) {
+  const c = createClient()
+
+  const { data } = c
+    .storage
+    .from('profile-photos')
+    .getPublicUrl(path)
+
+  return data.publicUrl
+}
+
   return createClient()
     .storage
     .from('profile-photos')
