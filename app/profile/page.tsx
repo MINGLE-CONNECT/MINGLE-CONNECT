@@ -193,41 +193,7 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
         '_'
       )
 
-      const path =
-        `${uid}/${Date.now()}-${safeName}`
-
-      const { error } = await c
-        .storage
-        .from('profile-photos')
-        .upload(path, file, {
-          upsert: false
-        })
-
-      if (error) {
-        setMsg('Upload failed: ' + error.message)
-        break
-      }
-
-      const { error: dbError } = await c
-        .from('profile_photos')
-        .insert({
-          user_id: uid,
-          storage_path: path,
-          sort_order: photos.length
-        })
-
-      if (dbError) {
-        await c.storage
-          .from('profile-photos')
-          .remove([path])
-
-        setMsg(
-          'Photo uploaded but could not be saved: ' +
-          dbError.message
-        )
-        break
-      }
-
+   c
       await loadPhotos(uid)
       setMsg('Photo added successfully! ❤️')
     }
@@ -262,15 +228,7 @@ async function upload(e: ChangeEvent<HTMLInputElement>) {
 
   
 function photoUrl(path: string) {
-  const c = createClient()
 
-  const { data } = c
-    .storage
-    .from('profile-photos')
-    .getPublicUrl(path)
-
-  return data.publicUrl
-}
 
   return createClient()
     .storage
