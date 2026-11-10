@@ -257,17 +257,12 @@ function lastSeenText(lastSeen?: string | null) {
   return `Last seen ${days} day${days === 1 ? '' : 's'} ago`
 }
   function photoUrl(path: string) {
-  return c
+  const { data } = c
     .storage
     .from('profile-photos')
-    .getPublicUrl(path, {
-      transform: {
-        width: 600,
-        resize: 'contain',
-        quality: 70,
-      },
-    })
-    .data.publicUrl
+    .getPublicUrl(path)
+
+  return data.publicUrl
 }
 
   async function like(target: Person) {
