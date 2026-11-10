@@ -74,8 +74,30 @@ export default function Login() {
             onChange={e => setPassword(e.target.value)}
           />
 
-          <a href="#" className="forgot">
-            Forgot password?
+         <button
+  type="button"
+  className="forgot"
+  onClick={async () => {
+    if (!email) {
+      alert("Please enter your email address first.");
+      return;
+    }
+
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      alert(error.message);
+    } else {
+      alert("Password reset link sent! Please check your email.");
+    }
+  }}
+>
+  Forgot password?
+</button>
           </a>
 
           <button
